@@ -856,26 +856,16 @@ serviceMaps:
 
 
 
+
     - version: 1.0
       description: Persists user address details in tables
-      fromTopic: upsert-useraddress
+      fromTopic: insert-useraddress
       isTransaction: true
       queryMaps:
         - query: >  
             INSERT INTO eg_address(
-              userid, tenantid, pincode, housenobldgapt, subdistrict, landmark, streetroadline, citytownvillage, arealocalitysector, district, state
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (userid, tenantid) 
-            DO UPDATE SET
-              pincode = EXCLUDED.pincode,
-              housenobldgApt = EXCLUDED.housenobldgapt,
-              subdistrict = EXCLUDED.subdistrict,
-              landmark = EXCLUDED.landmark,
-              streetroadline = EXCLUDED.streetroadline,
-              citytownvillage = EXCLUDED.citytownvillage,
-              arealocalitysector = EXCLUDED.arealocalitysector,
-              district = EXCLUDED.district,
-              state = EXCLUDED.state;
+              userid, tenantid, pincode, housenobldgapt, subdistrict, landmark, streetroadline, citytownvillage, arealocalitysector, district, state, id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           basePath: updatedAddress
           jsonMaps:
             - jsonPath: $.updatedAddress.userId
@@ -888,7 +878,44 @@ serviceMaps:
             - jsonPath: $.updatedAddress.city
             - jsonPath: $.updatedAddress.locality
             - jsonPath: $.updatedAddress.district
-            - jsonPath: $.updatedAddress.state  
+            - jsonPath: $.updatedAddress.state
+            - jsonPath: $.updatedAddress.id  
+
+
+    - version: 1.0
+      description: Updates user address details in tables
+      fromTopic: update-useraddress
+      isTransaction: true
+      queryMaps:
+        - query: >
+            UPDATE eg_address
+            SET
+              pincode = ?,
+              housenobldgapt = ?,
+              subdistrict = ?,
+              landmark = ?,
+              streetroadline = ?,
+              citytownvillage = ?,
+              arealocalitysector = ?,
+              district = ?,
+              state = ?,
+              id = ?
+            WHERE
+              userid = ? AND tenantid = ?
+          basePath: updatedAddress
+          jsonMaps:
+            - jsonPath: $.updatedAddress.pinCode
+            - jsonPath: $.updatedAddress.house
+            - jsonPath: $.updatedAddress.subDistrict
+            - jsonPath: $.updatedAddress.landmark
+            - jsonPath: $.updatedAddress.street
+            - jsonPath: $.updatedAddress.city
+            - jsonPath: $.updatedAddress.locality
+            - jsonPath: $.updatedAddress.district
+            - jsonPath: $.updatedAddress.state
+            - jsonPath: $.updatedAddress.id
+            - jsonPath: $.updatedAddress.userId
+            - jsonPath: $.updatedAddress.tenantId        
 
 
 
