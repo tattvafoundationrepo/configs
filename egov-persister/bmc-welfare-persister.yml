@@ -555,162 +555,6 @@ serviceMaps:
 
     
     
-    
-    
-    
-    - version: 1.0
-      description: Persists  user details in tables
-      fromTopic: save-user-details
-      isTransaction: true
-      queryMaps:
-        - query: INSERT INTO eg_bmc_aadharuser(aadharref, userid, tenantid, aadharfathername, aadharname, aadhardob, aadharmobile, gender, createdon, modifiedon, createdby, modifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-          basePath: AadharUser
-          jsonMaps:
-            - jsonPath: $.AadharUser.aadharRef
-            - jsonPath: $.AadharUser.userId
-            - jsonPath: $.AadharUser.tenantId
-            - jsonPath: $.AadharUser.father
-            - jsonPath: $.AadharUser.aadharName
-            - jsonPath: $.AadharUser.dob
-            - jsonPath: $.AadharUser.aadharMobile
-            - jsonPath: $.AadharUser.gender
-            - jsonPath: $.AadharUser.createdOn
-            - jsonPath: $.AadharUser.modifiedOn
-            - jsonPath: $.AadharUser.createdBy
-            - jsonPath: $.AadharUser.modifiedBy
-
-        - query: INSERT INTO eg_bmc_userbank(branchid, userid, tenantid, accountnumber, createdby, modifiedby) VALUES (?, ?, ?, ?, ?, ?);
-          basePath: UserBank
-          jsonMaps:
-            - jsonPath: $.UserBank.branchId
-            - jsonPath: $.UserBank.userId
-            - jsonPath: $.UserBank.tenantId
-            - jsonPath: $.UserBank.accountNumber
-            - jsonPath: $.UserBank.createdBy
-            - jsonPath: $.UserBank.modifiedBy
-
-        - query:  INSERT INTO eg_bmc_userqualification(userid, qualificationid, createdon, modifiedon, createdby, modifiedby, percentage, board, yearofpassing) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-          basePath: UserQualification
-          jsonMaps:
-            - jsonPath: $.UserQualification.userId
-            - jsonPath: $.UserQualification.qualificationId
-            - jsonPath: $.UserQualification.createdOn
-            - jsonPath: $.UserQualification.modifiedOn
-            - jsonPath: $.UserQualification.createdBy
-            - jsonPath: $.UserQualification.modifiedBy
-            - jsonPath: $.UserQualification.percentage
-            - jsonPath: $.UserQualification.board
-            - jsonPath: $.UserQualification.yearOfPassing
-
-        - query: INSERT INTO eg_bmc_userotherdetails(userid, tenantid, casteid, religionid, divyangcardid, divyangpercent, transgenderid, createdon, modifiedon, createdby, modifiedby, divyangid, blockname, zonename, wardname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-          basePath: UserOtherDetails
-          jsonMaps:
-            - jsonPath: $.UserOtherDetails.userId
-            - jsonPath: $.UserOtherDetails.tenantId
-            - jsonPath: $.UserOtherDetails.casteId
-            - jsonPath: $.UserOtherDetails.religionId
-            - jsonPath: $.UserOtherDetails.divyangCardId
-            - jsonPath: $.UserOtherDetails.divyangPercent
-            - jsonPath: $.UserOtherDetails.transgenderId
-            - jsonPath: $.UserOtherDetails.createdOn
-            - jsonPath: $.UserOtherDetails.modifiedOn
-            - jsonPath: $.UserOtherDetails.createdBy
-            - jsonPath: $.UserOtherDetails.modifiedBy
-            - jsonPath: $.UserOtherDetails.divyangId
-            - jsonPath: $.UserAddress.blockName
-            - jsonPath: $.UserAddress.zoneName
-            - jsonPath: $.UserAddress.wardName
-
-
-        - query: INSERT INTO eg_address(userid, tenantid, pincode, house, subdistrict, landmark, street, city, locality, district, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-          basePath: UserAddress
-          jsonMaps:
-            - jsonPath: $.UserAddress.userId
-            - jsonPath: $.UserAddress.tenantId
-            - jsonPath: $.UserAddress.pinCode
-            - jsonPath: $.UserAddress.house
-            - jsonPath: $.UserAddress.subDistrict
-            - jsonPath: $.UserAddress.landmark
-            - jsonPath: $.UserAddress.street
-            - jsonPath: $.UserAddress.city
-            - jsonPath: $.UserAddress.locality
-            - jsonPath: $.UserAddress.district
-            - jsonPath: $.UserAddress.state
-            
-
-    - version: 1.0
-      description: Updates Aadhar user details in tables
-      fromTopic: update-user-details
-      isTransaction: true
-      queryMaps:
-        - query: UPDATE eg_bmc_aadharuser SET aadharref=?, userid=?, tenantid=?, aadharfathername=?, aadharname=?, aadhardob=?, aadharmobile=?, gender=?, modifiedon=?, modifiedby=? WHERE userid=? AND tenantid=?;
-          basePath: AadharUser
-          jsonMaps:
-            - jsonPath: $.AadharUser.aadharRef
-            - jsonPath: $.AadharUser.userId
-            - jsonPath: $.AadharUser.tenantId
-            - jsonPath: $.AadharUser.father
-            - jsonPath: $.AadharUser.aadharName
-            - jsonPath: $.AadharUser.dob
-            - jsonPath: $.AadharUser.mobile
-            - jsonPath: $.AadharUser.gender
-            - jsonPath: $.AadharUser.modifiedOn
-            - jsonPath: $.AadharUser.modifiedBy
-            - jsonPath: $.AadharUser.id
-
-        - query: UPDATE eg_bmc_userbank SET branchid=?, tenantid=?, accountnumber=?, modifiedby=? WHERE userid=? AND tenantid=?;
-          basePath: UserBank
-          jsonMaps:
-            - jsonPath: $.UserBank.branchId
-            - jsonPath: $.UserBank.tenantId
-            - jsonPath: $.UserBank.accountNumber
-            - jsonPath: $.UserBank.modifiedBy
-            - jsonPath: $.UserBank.userId    
-
-        - query: UPDATE eg_bmc_userqualification SET qualificationid=?, modifiedon=?, modifiedby=?, percentage=?, board=?, yearofpassing=? WHERE userid=? AND tenantid=?;
-          basePath: UserQualification
-          jsonMaps:
-            - jsonPath: $.UserQualification.qualificationId
-            - jsonPath: $.UserQualification.modifiedOn
-            - jsonPath: $.UserQualification.modifiedBy
-            - jsonPath: $.UserQualification.percentage
-            - jsonPath: $.UserQualification.board
-            - jsonPath: $.UserQualification.yearOfPassing
-            - jsonPath: $.UserQualification.userId
-
-        - query: UPDATE eg_bmc_userotherdetails SET tenantid=?, casteid=?, religionid=?, divyangcardid=?, divyangpercent=?, transgenderid=?, modifiedon=?, modifiedby=?, divyangid=?, blockname=?, zonename=?, wardname=? WHERE userid=? AND tenantid=?;
-          basePath: UserOtherDetails
-          jsonMaps:
-            - jsonPath: $.UserOtherDetails.tenantId
-            - jsonPath: $.UserOtherDetails.casteId
-            - jsonPath: $.UserOtherDetails.religionId
-            - jsonPath: $.UserOtherDetails.divyangCardId
-            - jsonPath: $.UserOtherDetails.divyangPercent
-            - jsonPath: $.UserOtherDetails.transgenderId
-            - jsonPath: $.UserOtherDetails.modifiedOn
-            - jsonPath: $.UserOtherDetails.modifiedBy
-            - jsonPath: $.UserOtherDetails.divyangId
-            - jsonPath: $.UserOtherDetails.userId
-            - jsonPath: $.UserAddress.blockName
-            - jsonPath: $.UserAddress.zoneName
-            - jsonPath: $.UserAddress.wardName            
-
-        - query: UPDATE eg_address SET tenantid=?, pincode=?, house=?, subdistrict=?, landmark=?, street=?, city=?, locality=?, district=?, state=? WHERE userid=? AND tenantid=?;
-          basePath: UserAddress
-          jsonMaps:
-            - jsonPath: $.UserAddress.tenantId
-            - jsonPath: $.UserAddress.pinCode
-            - jsonPath: $.UserAddress.house
-            - jsonPath: $.UserAddress.subDistrict
-            - jsonPath: $.UserAddress.landmark
-            - jsonPath: $.UserAddress.street
-            - jsonPath: $.UserAddress.city
-            - jsonPath: $.UserAddress.locality
-            - jsonPath: $.UserAddress.district
-            - jsonPath: $.UserAddress.state
-            - jsonPath: $.UserAddress.userId
-
-
 
                 
     - version: 1.0
@@ -766,15 +610,15 @@ serviceMaps:
               accountnumber = EXCLUDED.accountnumber,
               createdby = EXCLUDED.createdby,
               modifiedby = EXCLUDED.modifiedby;
-          basePath: UserBank
+          basePath: $.updatedBank.*
           jsonMaps:
-            - jsonPath: $.UserBank.branchId
-            - jsonPath: $.UserBank.userId
-            - jsonPath: $.UserBank.tenantId
-            - jsonPath: $.UserBank.accountNumber
-            - jsonPath: $.UserBank.createdBy
-            - jsonPath: $.UserBank.modifiedBy
-            - jsonPath: $.UserBank.modifiedOn
+            - jsonPath: $.updatedBank.*.branchId
+            - jsonPath: $.updatedBank.*.userId
+            - jsonPath: $.updatedBank.*.tenantId
+            - jsonPath: $.updatedBank.*.accountNumber
+            - jsonPath: $.updatedBank.*.createdBy
+            - jsonPath: $.updatedBank.*.modifiedBy
+            - jsonPath: $.updatedBank.*.modifiedOn
    
 
 
@@ -796,17 +640,17 @@ serviceMaps:
               percentage = EXCLUDED.percentage,
               board = EXCLUDED.board,
               year_of_passing = EXCLUDED.year_of_passing;
-          basePath: UserQualification
+          basePath: $.updatedQualifications.*
           jsonMaps:
-            - jsonPath: $.UserQualification.userId
-            - jsonPath: $.UserQualification.qualificationId
-            - jsonPath: $.UserQualification.createdOn
-            - jsonPath: $.UserQualification.modifiedOn
-            - jsonPath: $.UserQualification.createdBy
-            - jsonPath: $.UserQualification.modifiedBy
-            - jsonPath: $.UserQualification.percentage
-            - jsonPath: $.UserQualification.board
-            - jsonPath: $.UserQualification.yearOfPassing     
+            - jsonPath: $.updatedQualifications.*.userId
+            - jsonPath: $.updatedQualifications.*.qualification.id
+            - jsonPath: $.updatedQualifications.*.createdOn
+            - jsonPath: $.updatedQualifications.*.modifiedOn
+            - jsonPath: $.updatedQualifications.*.createdBy
+            - jsonPath: $.updatedQualifications.*.modifiedBy
+            - jsonPath: $.updatedQualifications.*.percentage
+            - jsonPath: $.updatedQualifications.*.board.value
+            - jsonPath: $.updatedQualifications.*.yearOfPassing.value     
 
 
 
@@ -818,8 +662,8 @@ serviceMaps:
       queryMaps:
         - query: >
             INSERT INTO eg_bmc_userotherdetails(
-              userid, tenantid, casteid, religionid, divyangcardid, divyangpercent, transgenderid, createdon, modifiedon, createdby, modifiedby, divyangid, block, zone, ward
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              userid, tenantid, casteid, religionid, divyangcardid, divyangpercent, transgenderid, createdon, modifiedon, createdby, modifiedby, divyangid, block, zone, ward, occupation,income
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (userid, tenantid) 
             DO UPDATE SET
               casteid = EXCLUDED.casteid,
@@ -834,7 +678,9 @@ serviceMaps:
               divyangid = EXCLUDED.divyangid,
               block = EXCLUDED.block,
               zone = EXCLUDED.zone,
-              ward = EXCLUDED.ward;
+              ward = EXCLUDED.ward,
+              occupation = EXCLUDED.occupation,
+              income = EXCLUDED.income;
           basePath: UserOtherDetails
           jsonMaps:
             - jsonPath: $.UserOtherDetails.userId
@@ -852,7 +698,8 @@ serviceMaps:
             - jsonPath: $.UserOtherDetails.block
             - jsonPath: $.UserOtherDetails.zone
             - jsonPath: $.UserOtherDetails.ward  
-
+            - jsonPath: $.UserOtherDetails.occupation
+            - jsonPath: $.UserOtherDetails.income
 
 
 
@@ -919,8 +766,6 @@ serviceMaps:
 
 
 
-
-
     - version: 1.0
       description: Persists user scheme application details in tables
       fromTopic: save-user-scheme-application
@@ -980,6 +825,38 @@ serviceMaps:
             - jsonPath: $.SchemeMachine.schemeId
             - jsonPath: $.SchemeMachine.grantAmount
 
+    - version: 1.0
+      description: Persists user sub-scheme mapping details in tables
+      fromTopic: upsert-usersubschememapping
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_usersubschememapping (
+              applicationnumber, machineid, courseid, userid, tenantid, createdon, createdby, modifiedon, modifiedby
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (applicationnumber) 
+            DO UPDATE SET
+              machineid = EXCLUDED.machineid,
+              courseid = EXCLUDED.courseid,
+              userid = EXCLUDED.userid,
+              tenantid = EXCLUDED.tenantid,
+              createdon = EXCLUDED.createdon,
+              createdby = EXCLUDED.createdby,
+              modifiedon = EXCLUDED.modifiedon,
+              modifiedby = EXCLUDED.modifiedby;
+          basePath: UserSubSchemeMapping
+          jsonMaps:
+            - jsonPath: $.UserSubSchemeMapping.applicationNumber
+            - jsonPath: $.UserSubSchemeMapping.machineId
+            - jsonPath: $.UserSubSchemeMapping.courseId
+            - jsonPath: $.UserSubSchemeMapping.userId
+            - jsonPath: $.UserSubSchemeMapping.tenantId
+            - jsonPath: $.UserSubSchemeMapping.createdOn
+            - jsonPath: $.UserSubSchemeMapping.createdBy
+            - jsonPath: $.UserSubSchemeMapping.modifiedOn
+            - jsonPath: $.UserSubSchemeMapping.modifiedBy
+        
+
 
     - version: 1.0
       description: Persists user document details in tables
@@ -996,16 +873,12 @@ serviceMaps:
               modifiedon = EXCLUDED.modifiedon,
               createdby = EXCLUDED.createdby,
               modifiedby = EXCLUDED.modifiedby;
-          basePath: UserDocument
+          basePath: $.SchemeApplications.updateSchemeData.documents.*
           jsonMaps:
-            - jsonPath: $.UserDocument.code
-            - jsonPath: $.UserDocument.userId
-            - jsonPath: $.UserDocument.tenantId
-            - jsonPath: $.UserDocument.available
-            - jsonPath: $.UserDocument.modifiedOn
-            - jsonPath: $.UserDocument.createdBy
-            - jsonPath: $.UserDocument.modifiedBy        
-
-
-
-
+            - jsonPath: $.documents.*.code
+            - jsonPath: $.documents.*.userId
+            - jsonPath: $.documents.*.tenantId
+            - jsonPath: $.documents.*.available
+            - jsonPath: $.documents.*.modifiedOn
+            - jsonPath: $.documents.*.createdBy
+            - jsonPath: $.documents.*.modifiedBy        
