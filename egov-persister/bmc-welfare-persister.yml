@@ -894,20 +894,26 @@ serviceMaps:
       queryMaps:
         - query: >
             INSERT INTO public.eg_bmc_userdocument (
-              documentid, userid, tenantid, available, modifiedon, createdby, modifiedby
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+              documentid, userid, tenantid, available, modifiedon, createdby, modifiedby,documentnumber
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (documentid, userid, tenantid) 
             DO UPDATE SET
               available = EXCLUDED.available,
               modifiedon = EXCLUDED.modifiedon,
               createdby = EXCLUDED.createdby,
-              modifiedby = EXCLUDED.modifiedby;
-          basePath: $.SchemeApplications.updateSchemeData.documents.*
+              modifiedby = EXCLUDED.modifiedby,
+              documentnumber = EXCLUDED.documentnumber;
+          basePath: $.updatedDocument.*
           jsonMaps:
-            - jsonPath: $.documents.*.code
-            - jsonPath: $.documents.*.userId
-            - jsonPath: $.documents.*.tenantId
-            - jsonPath: $.documents.*.available
-            - jsonPath: $.documents.*.modifiedOn
-            - jsonPath: $.documents.*.createdBy
-            - jsonPath: $.documents.*.modifiedBy        
+            - jsonPath: $.updatedDocument.*.document.id
+            - jsonPath: $.updatedDocument.*.document.userId
+            - jsonPath: $.updatedDocument.*.document.tenantId
+            - jsonPath: $.updatedDocument.*.document.available
+            - jsonPath: $.updatedDocument.*.document.modifiedOn
+            - jsonPath: $.updatedDocument.*.document.createdBy
+            - jsonPath: $.updatedDocument.*.document.modifiedBy
+            - jsonPath: $.updatedDocument.*.documentNo       
+
+
+
+
