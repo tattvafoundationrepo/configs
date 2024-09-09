@@ -717,7 +717,7 @@ serviceMaps:
           jsonMaps:
             - jsonPath: $.updatedAddress.userId
             - jsonPath: $.updatedAddress.tenantId
-            - jsonPath: $.updatedAddress.pinCode
+            - jsonPath: $.updatedAddress.pinCode.value
             - jsonPath: $.updatedAddress.house
             - jsonPath: $.updatedAddress.subDistrict
             - jsonPath: $.updatedAddress.landmark
@@ -751,7 +751,7 @@ serviceMaps:
               userid = ? AND tenantid = ?
           basePath: updatedAddress
           jsonMaps:
-            - jsonPath: $.updatedAddress.pinCode
+            - jsonPath: $.updatedAddress.pinCode.value
             - jsonPath: $.updatedAddress.house
             - jsonPath: $.updatedAddress.subDistrict
             - jsonPath: $.updatedAddress.landmark
