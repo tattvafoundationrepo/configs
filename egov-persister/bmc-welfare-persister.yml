@@ -917,3 +917,138 @@ serviceMaps:
 
 
 
+
+    
+
+
+
+
+    - version: 1.0
+      description: Persists application snapshot details in table
+      fromTopic: upsert-application-snapshot
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_application_snapshot(
+              housenobldgapt, subdistrict, postoffice, landmark, country, "type", streetroadline, citytownvillage, arealocalitysector, district, state, pincode,
+              aadharref, aadharfathername, aadharname, aadharmobile, gender, aadhardob,
+              user_documents, user_banks, user_qualifications,
+              applicationnumber, machineid, courseid, optedid, applicationstatus, verificationstatus, firstapprovalstatus, randomselection, finalapproval, submitted, agreetopay, "statement",
+              userid, tenantid, createdon, createdby, modifiedon, modifiedby,
+              casteid, religionid, divyangcardid, divyangpercent, transgenderid, divyangid, rationcardcategory, udid, "zone", block, ward, occupation, income
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
+            ON CONFLICT (userid, tenantid, applicationnumber) 
+            DO UPDATE SET
+              housenobldgapt = EXCLUDED.housenobldgapt,
+              subdistrict = EXCLUDED.subdistrict,
+              postoffice = EXCLUDED.postoffice,
+              landmark = EXCLUDED.landmark,
+              country = EXCLUDED.country,
+              "type" = EXCLUDED."type",
+              streetroadline = EXCLUDED.streetroadline,
+              citytownvillage = EXCLUDED.citytownvillage,
+              arealocalitysector = EXCLUDED.arealocalitysector,
+              district = EXCLUDED.district,
+              state = EXCLUDED.state,
+              pincode = EXCLUDED.pincode,
+              aadharref = EXCLUDED.aadharref,
+              aadharfathername = EXCLUDED.aadharfathername,
+              aadharname = EXCLUDED.aadharname,
+              aadharmobile = EXCLUDED.aadharmobile,
+              gender = EXCLUDED.gender,
+              aadhardob = EXCLUDED.aadhardob,
+              user_documents = EXCLUDED.user_documents::jsonb,
+              user_banks = EXCLUDED.user_banks::jsonb,
+              user_qualifications = EXCLUDED.user_qualifications::jsonb,
+              applicationnumber = EXCLUDED.applicationnumber,
+              machineid = EXCLUDED.machineid,
+              courseid = EXCLUDED.courseid,
+              optedid = EXCLUDED.optedid,
+              applicationstatus = EXCLUDED.applicationstatus,
+              verificationstatus = EXCLUDED.verificationstatus,
+              firstapprovalstatus = EXCLUDED.firstapprovalstatus,
+              randomselection = EXCLUDED.randomselection,
+              finalapproval = EXCLUDED.finalapproval,
+              submitted = EXCLUDED.submitted,
+              agreetopay = EXCLUDED.agreetopay,
+              "statement" = EXCLUDED."statement",
+              createdon = EXCLUDED.createdon,
+              createdby = EXCLUDED.createdby,
+              modifiedon = EXCLUDED.modifiedon,
+              modifiedby = EXCLUDED.modifiedby,
+              casteid = EXCLUDED.casteid,
+              religionid = EXCLUDED.religionid,
+              divyangcardid = EXCLUDED.divyangcardid,
+              divyangpercent = EXCLUDED.divyangpercent,
+              transgenderid = EXCLUDED.transgenderid,
+              divyangid = EXCLUDED.divyangid,
+              rationcardcategory = EXCLUDED.rationcardcategory,
+              udid = EXCLUDED.udid,
+              "zone" = EXCLUDED."zone",
+              block = EXCLUDED.block,
+              ward = EXCLUDED.ward,
+              occupation = EXCLUDED.occupation,
+              income = EXCLUDED.income;
+          basePath: ApplicationSnapshot
+          jsonMaps:
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.house
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.subDistrict
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.postOffice
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.landmark
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.country
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.type
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.street
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.city
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.locality
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.district
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.state
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.pinCode.value
+
+            - jsonPath: $.ApplicationSnapshot.AadharUser.aadharRef
+            - jsonPath: $.ApplicationSnapshot.AadharUser.father
+            - jsonPath: $.ApplicationSnapshot.AadharUser.aadharName
+            - jsonPath: $.ApplicationSnapshot.AadharUser.aadharMobile
+            - jsonPath: $.ApplicationSnapshot.AadharUser.gender
+            - jsonPath: $.ApplicationSnapshot.AadharUser.dob
+
+            - jsonPath: $.ApplicationSnapshot.updatedDocument
+            - jsonPath: $.ApplicationSnapshot.updatedBank
+            - jsonPath: $.ApplicationSnapshot.updatedQualifications
+
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.applicationNumber
+
+            - jsonPath: $.ApplicationSnapshot.UserSubSchemeMapping.machineId
+            - jsonPath: $.ApplicationSnapshot.UserSubSchemeMapping.courseId
+
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.optedId
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.applicationStatus
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.verificationStatus
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.firstApprovalStatus
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.randomSelection
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.finalApproval
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.submitted
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.agreeToPay
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.statement
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.userId
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.tenantId
+            - jsonPath: $.ApplicationSnapshot.AadharUser.createdOn
+            - jsonPath: $.ApplicationSnapshot.AadharUser.createdBy
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.modifiedOn
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.modifiedBy
+
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.caste.id
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.religion.id
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.divyangCardId
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.divyangPercent
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.transgenderId
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.divyang.id
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.rationCardCategory
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.udid
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.zone
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.block
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.ward
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.occupation
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.income
+
+
+
