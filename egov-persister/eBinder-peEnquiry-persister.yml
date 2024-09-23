@@ -1,0 +1,146 @@
+serviceMaps:
+  serviceName: eBinder-services
+  mappings:
+    - version: 1.0
+      description: Persists or updates Pe Enquiry data
+      fromTopic: save-pe-enquiryyyyy
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO eg_pe_enquiry
+            (newCode, oldCode, orderDate, orderNo, ceDesig, ceDept, ceEmpCode, enqSubject, tenantId, createdAt, updatedAt, createdBy, updatedBy) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (ceEmpCode) 
+            DO UPDATE SET
+              newCode = EXCLUDED.newCode,
+              oldCode = EXCLUDED.oldCode,
+              orderDate = EXCLUDED.orderDate,
+              orderNo = EXCLUDED.orderNo,
+              ceDesig = EXCLUDED.ceDesig,
+              ceDept = EXCLUDED.ceDept,
+              enqSubject = EXCLUDED.enqSubject,
+              tenantId = EXCLUDED.tenantId,
+              createdAt = EXCLUDED.createdAt,
+              updatedAt = EXCLUDED.updatedAt,
+              CreatedBy = EXCLUDED.CreatedBy,
+              updatedBy = EXCLUDED.updatedBy;
+          basePath: $.PeEnquiry
+          jsonMaps:
+            - jsonPath: $.PeEnquiry.newCode
+            - jsonPath: $.PeEnquiry.oldCode
+            - jsonPath: $.PeEnquiry.orderDate
+            - jsonPath: $.PeEnquiry.orderNo
+            - jsonPath: $.PeEnquiry.ceDesig
+            - jsonPath: $.PeEnquiry.ceDept
+            - jsonPath: $.PeEnquiry.ceEmpCode
+            - jsonPath: $.PeEnquiry.enqSubject
+            - jsonPath: $.PeEnquiry.tenantId
+            - jsonPath: $.PeEnquiry.createdAt
+            - jsonPath: $.PeEnquiry.updatedAt
+            - jsonPath: $.PeEnquiry.createdBy
+            - jsonPath: $.PeEnquiry.updatedBy
+
+
+    - version: 1.0
+      description: Persists CeList details
+      fromTopic: save-eBinder-ceList
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO eg_ce_list
+            ( peEnquiryId, ceCode, ceName, ceDept, ceDesig, ceSuspended, ceSuspensionOrder, ceStatus, enqOrderType, caseType, createdAt, updatedAt, createdBy, updatedBy) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);
+          basePath: $.CeList
+          jsonMaps:
+            - jsonPath: $.CeList.peEnquiryId
+            - jsonPath: $.CeList.ceCode
+            - jsonPath: $.CeList.ceName
+            - jsonPath: $.CeList.ceDept
+            - jsonPath: $.CeList.ceDesig
+            - jsonPath: $.CeList.ceSuspended
+            - jsonPath: $.CeList.ceSuspensionOrder
+            - jsonPath: $.CeList.ceStatus
+            - jsonPath: $.CeList.enqOrderType
+            - jsonPath: $.CeList.caseType
+            - jsonPath: $.CeList.createdAt
+            - jsonPath: $.CeList.updatedAt
+            - jsonPath: $.CeList.createdBy
+            - jsonPath: $.CeList.updatedBy
+
+
+
+    - version: 1.0
+      description: Persists PE Enquiry details and associated employee data
+      fromTopic: save-pe-enquiry
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO public.eg_pe_enquiry 
+            ( newcode, oldcode, orderdate, orderno, cedesig, cedept, ceempcode, enqsubject, tenantid, createdat, updatedat, createdby, updatedby) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (newcode)
+            DO UPDATE SET
+              newcode = EXCLUDED.newcode,
+              oldcode = EXCLUDED.oldcode,
+              orderdate = EXCLUDED.orderdate,
+              orderno = EXCLUDED.orderno,
+              cedesig = EXCLUDED.cedesig,
+              cedept = EXCLUDED.cedept,
+              enqsubject = EXCLUDED.enqsubject,
+              tenantid = EXCLUDED.tenantid,
+              updatedat = EXCLUDED.updatedat,
+              updatedby = EXCLUDED.updatedby
+            RETURNING id;
+          basePath: $.data1
+          jsonMaps:
+            - jsonPath: $.data1.enquiryCode
+            - jsonPath: $.data1.oldenquiryCode
+            - jsonPath: $.data1.orderDate
+            - jsonPath: $.data1.orderNo
+            - jsonPath: $.data1.designation.i18key
+            - jsonPath: $.data1.department.i18key
+            - jsonPath: $.data1.employee
+            - jsonPath: $.data1.enquirySubject
+            - jsonPath: $.RequestInfo.userInfo.tenantId
+            - jsonPath: $.data1.createdAt
+            - jsonPath: $.data1.updatedAt
+            - jsonPath: $.RequestInfo.userInfo.userName
+            - jsonPath: $.data1.updatedBy
+
+        - query: |
+            INSERT INTO public.eg_ce_list 
+            (peenquiryid, cecode, cename, cedept, cedesig, cesuspended, cesuspensionorder, cestatus, enqordertype, casetype, createdat, updatedat, createdby, updatedby,mobileno,email)
+            VALUES ((select id from eg_pe_enquiry  where newcode = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (peenquiryid,cecode)
+            DO UPDATE SET
+              cename = EXCLUDED.cename,
+              cedept = EXCLUDED.cedept,
+              cedesig = EXCLUDED.cedesig,
+              cesuspended = EXCLUDED.cesuspended,
+              cesuspensionorder = EXCLUDED.cesuspensionorder,
+              cestatus = EXCLUDED.cestatus,
+              enqordertype = EXCLUDED.enqordertype,
+              casetype = EXCLUDED.casetype,
+              updatedat = EXCLUDED.updatedat,
+              updatedby = EXCLUDED.updatedby,
+              mobileno= EXCLUDED.mobileno,
+              email=EXCLUDED.email;
+          basePath: $.data2.*
+          jsonMaps:
+            - jsonPath: $.data1.enquiryCode 
+            - jsonPath: $.data2.*.employeeCode
+            - jsonPath: $.data2.*.employeename
+            - jsonPath: $.data2.*.department.i18key
+            - jsonPath: $.data2.*.designation.i18key
+            - jsonPath: $.data2.*.cesuspended
+            - jsonPath: $.data2.*.cesuspensionorder
+            - jsonPath: $.data2.*.cestatus
+            - jsonPath: $.data2.*.enqordertype
+            - jsonPath: $.data2.*.casetype
+            - jsonPath: $.data2.*.createdAt
+            - jsonPath: $.data2.*.updatedAt
+            - jsonPath: $.data2.*.createdBy
+            - jsonPath: $.data2.*.updatedBy
+            - jsonPath: $.data2.*.mobileNumber
+            - jsonPath: $.data2.*.email
+        
