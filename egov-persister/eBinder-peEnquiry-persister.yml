@@ -47,7 +47,7 @@ serviceMaps:
       isTransaction: true
       queryMaps:
         - query: |
-            INSERT INTO eg_ce_list
+            INSERT INTO eg_ebinder_ce_list
             ( peEnquiryId, ceCode, ceName, ceDept, ceDesig, ceSuspended, ceSuspensionOrder, ceStatus, enqOrderType, caseType, createdAt, updatedAt, createdBy, updatedBy) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);
           basePath: $.CeList
@@ -75,7 +75,7 @@ serviceMaps:
       isTransaction: true
       queryMaps:
         - query: |
-            INSERT INTO public.eg_pe_enquiry 
+            INSERT INTO eg_ebinder_pe_enquiry 
             ( newcode, oldcode, orderdate, orderno, cedesig, cedept, ceempcode, enqsubject, tenantid, createdat, updatedat, createdby, updatedby) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (newcode)
@@ -108,7 +108,7 @@ serviceMaps:
             - jsonPath: $.data1.updatedBy
 
         - query: |
-            INSERT INTO public.eg_ce_list 
+            INSERT INTO eg_ebinder_ce_list 
             (peenquiryid, cecode, cename, cedept, cedesig, cesuspended, cesuspensionorder, cestatus, enqordertype, casetype, createdat, updatedat, createdby, updatedby,mobileno,email)
             VALUES ((select id from eg_pe_enquiry  where newcode = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (peenquiryid,cecode)
