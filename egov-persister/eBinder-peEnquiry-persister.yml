@@ -110,7 +110,7 @@ serviceMaps:
         - query: |
             INSERT INTO eg_ebinder_ce_list 
             (peenquiryid, cecode, cename, cedept, cedesig, cesuspended, cesuspensionorder, cestatus, enqordertype, casetype, createdat, updatedat, createdby, updatedby,mobileno,email)
-            VALUES ((select id from eg_pe_enquiry  where newcode = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES ((select id from eg_ebinder_pe_enquiry  where newcode = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (peenquiryid,cecode)
             DO UPDATE SET
               cename = EXCLUDED.cename,
