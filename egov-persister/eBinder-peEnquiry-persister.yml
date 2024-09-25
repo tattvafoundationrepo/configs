@@ -132,8 +132,8 @@ serviceMaps:
             - jsonPath: $.data2.*.employeename
             - jsonPath: $.data2.*.department.code
             - jsonPath: $.data2.*.designation.code
-            - jsonPath: $.data2.*.cesuspended
-            - jsonPath: $.data2.*.cesuspensionorder
+            - jsonPath: $.data2.*.isSuspended
+            - jsonPath: $.data2.*.susOrderNumber
             - jsonPath: $.data2.*.cestatus
             - jsonPath: $.data2.*.enqordertype
             - jsonPath: $.data2.*.casetype
