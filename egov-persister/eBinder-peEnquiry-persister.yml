@@ -97,8 +97,8 @@ serviceMaps:
             - jsonPath: $.data1.oldenquiryCode
             - jsonPath: $.data1.orderDate
             - jsonPath: $.data1.orderNo
-            - jsonPath: $.data1.designation.i18key
-            - jsonPath: $.data1.department.i18key
+            - jsonPath: $.data1.designation.code
+            - jsonPath: $.data1.department.code
             - jsonPath: $.data1.employee
             - jsonPath: $.data1.enquirySubject
             - jsonPath: $.RequestInfo.userInfo.tenantId
@@ -130,8 +130,8 @@ serviceMaps:
             - jsonPath: $.data1.enquiryCode 
             - jsonPath: $.data2.*.employeeCode
             - jsonPath: $.data2.*.employeename
-            - jsonPath: $.data2.*.department.i18key
-            - jsonPath: $.data2.*.designation.i18key
+            - jsonPath: $.data2.*.department.code
+            - jsonPath: $.data2.*.designation.code
             - jsonPath: $.data2.*.cesuspended
             - jsonPath: $.data2.*.cesuspensionorder
             - jsonPath: $.data2.*.cestatus
