@@ -152,7 +152,7 @@ serviceMaps:
       isTransaction: true
       queryMaps:
         - query: |
-            INSERT INTO public.eg_ebinder_pe_enq_records 
+            INSERT INTO eg_ebinder_pe_enq_records 
             (peenquiryid, comment, dates, actions, createdat, updatedat, createdby, updatedby)
             VALUES ((select id from eg_ebinder_pe_enquiry  where newcode = ?), ?, ?, ?, ?, ?, ?, ?)
           basePath: record
@@ -165,3 +165,29 @@ serviceMaps:
             - jsonPath: $.record.updatedAt
             - jsonPath: $.record.createdBy
             - jsonPath: $.record.updatedBy
+
+
+
+    - version: 1.0
+      description: Persists PE Submission Report data
+      fromTopic: save-pe-submission-report
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO public.eg_ebinder_pe_submission_report 
+            (penumber, reportnumber, comment, reportsubmissiomdate, designationname, competentauthname, casetype, ordertype, createdat, updatedat, createdby, updatedby)
+            VALUES (?, DEFAULT, ?, ?, (select cedesig from eg_ebinder_pe_enquiry  where newcode = ?), (select ceempcode from eg_ebinder_pe_enquiry  where newcode = ?), ?, ?, ?, ?, ?, ?)
+          basePath: $.report
+          jsonMaps:
+            - jsonPath: $.report.peNumber
+            - jsonPath: $.report.comment
+            - jsonPath: $.report.reportSubmissionDate
+            - jsonPath: $.report.peNumber
+            - jsonPath: $.report.peNumber
+            - jsonPath: $.report.caseType
+            - jsonPath: $.report.orderType
+            - jsonPath: $.report.createdAt
+            - jsonPath: $.report.updatedAt
+            - jsonPath: $.report.createdBy
+            - jsonPath: $.report.updatedBy
+        
