@@ -144,3 +144,24 @@ serviceMaps:
             - jsonPath: $.data2.*.mobileNumber
             - jsonPath: $.data2.*.email
         
+
+
+    - version: 1.0
+      description: Persists PE Enquiry Records and associated data
+      fromTopic: upsert-pe-enq-records
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO public.eg_ebinder_pe_enq_records 
+            (peenquiryid, comment, dates, actions, createdat, updatedat, createdby, updatedby)
+            VALUES ((select id from eg_ebinder_pe_enquiry  where newcode = ?), ?, ?, ?, ?, ?, ?, ?)
+          basePath: record
+          jsonMaps:
+            - jsonPath: $.record.peEnquiryId
+            - jsonPath: $.record.comment
+            - jsonPath: $.record.dates
+            - jsonPath: $.record.actions
+            - jsonPath: $.record.createdAt
+            - jsonPath: $.record.updatedAt
+            - jsonPath: $.record.createdBy
+            - jsonPath: $.record.updatedBy
