@@ -190,4 +190,52 @@ serviceMaps:
             - jsonPath: $.report.updatedAt
             - jsonPath: $.report.createdBy
             - jsonPath: $.report.updatedBy
+
+
+
+    - version: 1.0
+      description: Persists associated CE List data for a PE Enquiry
+      fromTopic: add-ce-employee
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO eg_ebinder_ce_list 
+            (peenquiryid, cecode, cename, cedept, cedesig, cesuspended, cesuspensionorder, cestatus, enqordertype, casetype, createdat, updatedat, createdby, updatedby, mobileno, email)
+            VALUES (
+              (SELECT id FROM eg_ebinder_pe_enquiry WHERE newcode = ?), 
+              ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+            ON CONFLICT (peenquiryid, cecode)
+            DO UPDATE SET
+              cename = EXCLUDED.cename,
+              cedept = EXCLUDED.cedept,
+              cedesig = EXCLUDED.cedesig,
+              cesuspended = EXCLUDED.cesuspended,
+              cesuspensionorder = EXCLUDED.cesuspensionorder,
+              cestatus = EXCLUDED.cestatus,
+              enqordertype = EXCLUDED.enqordertype,
+              casetype = EXCLUDED.casetype,
+              updatedat = EXCLUDED.updatedat,
+              updatedby = EXCLUDED.updatedby,
+              mobileno = EXCLUDED.mobileno,
+              email = EXCLUDED.email;
+          basePath: $.EmployeeAdd
+          jsonMaps:
+            - jsonPath: $.EmployeeAdd.enquiryCode
+            - jsonPath: $.EmployeeAdd.employeeCode
+            - jsonPath: $.EmployeeAdd.employeename
+            - jsonPath: $.EmployeeAdd.department.code
+            - jsonPath: $.EmployeeAdd.designation.code
+            - jsonPath: $.EmployeeAdd.isSuspended
+            - jsonPath: $.EmployeeAdd.susOrderNumber
+            - jsonPath: $.EmployeeAdd.cestatus
+            - jsonPath: $.EmployeeAdd.enqordertype
+            - jsonPath: $.EmployeeAdd.casetype
+            - jsonPath: $.EmployeeAdd.createdAt
+            - jsonPath: $.EmployeeAdd.updatedAt
+            - jsonPath: $.EmployeeAdd.createdBy
+            - jsonPath: $.EmployeeAdd.updatedBy
+            - jsonPath: $.EmployeeAdd.mobileNumber
+            - jsonPath: $.EmployeeAdd.email
+        
         
