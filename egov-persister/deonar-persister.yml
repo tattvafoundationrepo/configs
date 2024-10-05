@@ -37,54 +37,59 @@ serviceMaps:
             - jsonPath: $.AnimalDetails.*.createdBy
             - jsonPath: $.AnimalDetails.*.updatedBy
 
+  
+
     - version: 1.0
       description: Persists Deonar Inspection details
       fromTopic: save-inspection-details
       isTransaction: true
       queryMaps:
         - query: |
-            INSERT INTO eg_deonar_animal
-            (animalType, animalTokenNum, arrivalId, createdAt, updatedAt, createdBy, updatedBy)
-            VALUES ( ?, ?, ?, ?, ?, ?,?) RETURNING id;
-          basePath: $.Animal
-          jsonMaps:
-            - jsonPath: $.Animal.animalType
-            - jsonPath: $.Animal.animalTokenNum
-            - jsonPath: $.Animal.arrivalId
-            - jsonPath: $.Animal.createdAt
-            - jsonPath: $.Animal.updatedAt
-            - jsonPath: $.Animal.createdBy
-            - jsonPath: $.Animal.updatedBy
-
-
-
-        - query: |
             INSERT INTO eg_deonar_inspection
-            (inspectionDate, inspectionTime, arrivalId, employeeId, animalId, createdAt, updatedAt, createdBy, updatedBy)
-            VALUES (?, ?, ?, ?,  (select id from eg_deonar_animal where animalTokenNum = ? ), ?, ?, ?, ?) RETURNING id;
+            (inspectiondate, inspectiontime, arrivalid, employeeid, createdat, updatedat, createdby, updatedby, inspectionunitid, inspectiontype)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (arrivalid,inspectiontype)
+            DO UPDATE SET 
+              inspectiontime = EXCLUDED.inspectiontime,
+              arrivalid = EXCLUDED.arrivalid,
+              employeeid = EXCLUDED.employeeid,
+              updatedat = EXCLUDED.updatedat,
+              updatedby = EXCLUDED.updatedby,
+              inspectionunitid = EXCLUDED.inspectionunitid,
+              inspectiontype = EXCLUDED.inspectiontype
+            RETURNING id;
           basePath: $.Inspection
           jsonMaps:
             - jsonPath: $.Inspection.inspectionDate
             - jsonPath: $.Inspection.inspectionTime
             - jsonPath: $.Inspection.arrivalId
             - jsonPath: $.Inspection.employeeId
-            - jsonPath: $.Animal.animalTokenNum
             - jsonPath: $.Inspection.createdAt
             - jsonPath: $.Inspection.updatedAt
             - jsonPath: $.Inspection.createdBy
             - jsonPath: $.Inspection.updatedBy
+            - jsonPath: $.Inspection.inspectionUnitId
+            - jsonPath: $.Inspection.inspectionType
 
         - query: |
             INSERT INTO eg_deonar_inspection_detail
-            (inspectionId, inspectionIndicatorId, inspectionIndicatorValue, createdAt, updatedAt, createdBy, updatedBy)
-            VALUES ((SELECT id FROM eg_deonar_inspection WHERE inspectionDate = ?),  ?,  ?, ?, ?, ?,?
-            );
-          basePath: $.InspectionDetail.*
+            (inspectionid, createdat, updatedat, createdby, updatedby, report, tokenno, "resultRemark")
+            VALUES ((SELECT id FROM eg_deonar_inspection WHERE arrivalid = ? and inspectiontype = ?), ?, ?, ?, ?, ?::jsonb, ?, ?)
+            ON CONFLICT (inspectionid, tokenno)
+            DO UPDATE SET 
+              updatedat = EXCLUDED.updatedat,
+              updatedby = EXCLUDED.updatedby,
+              report = EXCLUDED.report::jsonb,
+              "resultRemark" = EXCLUDED."resultRemark";
+          basePath: $.InspectionDetail
           jsonMaps:
-            - jsonPath: $.Inspection.inspectionDate
-            - jsonPath: $.InspectionDetail.*.inspectionIndicatorId
-            - jsonPath: $.InspectionDetail.*.inspectionIndicatorValue
-            - jsonPath: $.InspectionDetail.*.createdAt
-            - jsonPath: $.InspectionDetail.*.updatedAt
-            - jsonPath: $.InspectionDetail.*.createdBy
-            - jsonPath: $.InspectionDetail.*.updatedBy
+            - jsonPath: $.Inspection.arrivalId
+            - jsonPath: $.Inspection.inspectionType
+            - jsonPath: $.InspectionDetail.createdAt
+            - jsonPath: $.InspectionDetail.updatedAt 
+            - jsonPath: $.InspectionDetail.createdBy
+            - jsonPath: $.InspectionDetail.updatedBy
+            - jsonPath: $.InspectionDetail.report
+            - jsonPath: $.InspectionDetail.tokenNo
+            - jsonPath: $.InspectionDetail.resultRemark
+        
