@@ -8,8 +8,8 @@ serviceMaps:
       queryMaps:
         - query:  |
                   INSERT INTO eg_deonar_arrival 
-                  (arrivalId, importPermission, stakeholderId, dateOfArrival, timeOfArrival, vehicleNumber, createdAt, updatedAt, createdBy, updatedBy) 
-                  VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)
+                  (arrivalId, importPermission, stakeholderId, dateOfArrival, timeOfArrival, vehicleNumber, createdAt, updatedAt, createdBy, updatedBy,receiptmode,paymentreferenceno) 
+                  VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
                   RETURNING id;
           basePath: $.ArrivalDetails
           jsonMaps:
@@ -23,19 +23,21 @@ serviceMaps:
             - jsonPath: $.ArrivalDetails.updatedAt
             - jsonPath: $.ArrivalDetails.createdBy
             - jsonPath: $.ArrivalDetails.updatedBy
+            - jsonPath: $.ArrivalDetails.receiptMode.name
+            - jsonPath: $.ArrivalDetails.paymentReferenceNumber
         - query:  |
                   INSERT INTO eg_deonar_animal_at_arrival 
                   (arrivalId, animalTypeId, count, createdAt, updatedAt, createdBy, updatedBy)
                   VALUES ((select id from eg_deonar_arrival  where arrivalId = ?), ?, ?, ?, ?, ?, ?);
-          basePath: $.AnimalDetails.* # Reference directly without [*] to align with Java handling
+          basePath: $.saveAnimalDetails.* # Reference directly without [*] to align with Java handling
           jsonMaps:
             - jsonPath: $.ArrivalDetails.arrivalId
-            - jsonPath: $.AnimalDetails.*.animalTypeId
-            - jsonPath: $.AnimalDetails.*.count
-            - jsonPath: $.AnimalDetails.*.createdAt
-            - jsonPath: $.AnimalDetails.*.updatedAt
-            - jsonPath: $.AnimalDetails.*.createdBy
-            - jsonPath: $.AnimalDetails.*.updatedBy
+            - jsonPath: $.saveAnimalDetails.*.animalTypeId
+            - jsonPath: $.saveAnimalDetails.*.tokenNum
+            - jsonPath: $.saveAnimalDetails.*.createdAt
+            - jsonPath: $.saveAnimalDetails.*.updatedAt
+            - jsonPath: $.saveAnimalDetails.*.createdBy
+            - jsonPath: $.saveAnimalDetails.*.updatedBy
 
   
 
