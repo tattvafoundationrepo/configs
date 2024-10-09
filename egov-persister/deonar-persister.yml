@@ -75,14 +75,15 @@ serviceMaps:
 
         - query: |
             INSERT INTO eg_deonar_inspection_detail
-            (inspectionid, createdat, updatedat, createdby, updatedby, report, tokenno, "resultRemark")
-            VALUES ((SELECT id FROM eg_deonar_inspection WHERE arrivalid = ? and inspectiontype = ?), ?, ?, ?, ?, ?::jsonb, ?, ?)
+            (inspectionid, createdat, updatedat, createdby, updatedby, report, tokenno, "resultRemark",animaltypeid)
+            VALUES ((SELECT id FROM eg_deonar_inspection WHERE arrivalid = ? and inspectiontype = ?), ?, ?, ?, ?, ?::jsonb, ?, ?,?)
             ON CONFLICT (inspectionid, tokenno)
             DO UPDATE SET 
               updatedat = EXCLUDED.updatedat,
               updatedby = EXCLUDED.updatedby,
               report = EXCLUDED.report::jsonb,
-              "resultRemark" = EXCLUDED."resultRemark";
+              "resultRemark" = EXCLUDED."resultRemark",
+              animaltypeid =  EXCLUDED.animaltypeid;
           basePath: $.InspectionDetail
           jsonMaps:
             - jsonPath: $.Inspection.arrivalId
@@ -94,4 +95,5 @@ serviceMaps:
             - jsonPath: $.InspectionDetail.report
             - jsonPath: $.InspectionDetail.tokenNo
             - jsonPath: $.InspectionDetail.resultRemark
+            - jsonPath: $.InspectionDetail.animalTypeId
         
