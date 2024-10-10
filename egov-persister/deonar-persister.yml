@@ -86,14 +86,14 @@ serviceMaps:
 
         - query: |
             INSERT INTO eg_deonar_inspection_detail
-            (inspectionid, createdat, updatedat, createdby, updatedby, report, tokenno, "resultRemark",animaltypeid)
+            (inspectionid, createdat, updatedat, createdby, updatedby, report, tokenno, "resultremark",animaltypeid)
             VALUES ((SELECT id FROM eg_deonar_inspection WHERE arrivalid = ? and inspectiontype = ?), ?, ?, ?, ?, ?::jsonb, ?, ?,?)
             ON CONFLICT (inspectionid, tokenno)
             DO UPDATE SET 
               updatedat = EXCLUDED.updatedat,
               updatedby = EXCLUDED.updatedby,
               report = EXCLUDED.report::jsonb,
-              "resultRemark" = EXCLUDED."resultRemark",
+              "resultremark" = EXCLUDED."resultremark",
               animaltypeid =  EXCLUDED.animaltypeid;
           basePath: $.InspectionDetail
           jsonMaps:
