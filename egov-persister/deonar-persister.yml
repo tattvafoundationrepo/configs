@@ -6,11 +6,20 @@ serviceMaps:
       fromTopic: topic_deonar_arrival
       isTransaction: true
       queryMaps:
-        - query:  |
-                  INSERT INTO eg_deonar_arrival 
-                  (arrivalId, importPermission, stakeholderId, dateOfArrival, timeOfArrival, vehicleNumber, createdAt, updatedAt, createdBy, updatedBy,receiptmode,paymentreferenceno) 
-                  VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
-                  RETURNING id;
+        - query: |
+            INSERT INTO eg_deonar_arrival 
+            (arrivalId, importPermission, stakeholderId, dateOfArrival, timeOfArrival, vehicleNumber, createdAt, updatedAt, createdBy, updatedBy)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (arrivalId)
+            DO UPDATE SET 
+              importPermission = EXCLUDED.importPermission,
+              stakeholderId = EXCLUDED.stakeholderId,
+              dateOfArrival = EXCLUDED.dateOfArrival,
+              timeOfArrival = EXCLUDED.timeOfArrival,
+              vehicleNumber = EXCLUDED.vehicleNumber,
+              updatedAt = EXCLUDED.updatedAt,
+              updatedBy = EXCLUDED.updatedBy
+            RETURNING id;
           basePath: $.ArrivalDetails
           jsonMaps:
             - jsonPath: $.ArrivalDetails.arrivalId
@@ -23,13 +32,16 @@ serviceMaps:
             - jsonPath: $.ArrivalDetails.updatedAt
             - jsonPath: $.ArrivalDetails.createdBy
             - jsonPath: $.ArrivalDetails.updatedBy
-            - jsonPath: $.ArrivalDetails.receiptMode.name
-            - jsonPath: $.ArrivalDetails.paymentReferenceNumber
-        - query:  |
-                  INSERT INTO eg_deonar_animal_at_arrival 
-                  (arrivalId, animalTypeId, count, createdAt, updatedAt, createdBy, updatedBy)
-                  VALUES ((select id from eg_deonar_arrival  where arrivalId = ?), ?, ?, ?, ?, ?, ?);
-          basePath: $.saveAnimalDetails.* # Reference directly without [*] to align with Java handling
+
+        - query: |
+            INSERT INTO eg_deonar_animal_at_arrival 
+            (arrivalId, animalTypeId, count, createdAt, updatedAt, createdBy, updatedBy)
+            VALUES ((SELECT id FROM eg_deonar_arrival WHERE arrivalId = ?), ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (arrivalId, animalTypeId,count)
+            DO UPDATE SET
+              updatedAt = EXCLUDED.updatedAt,
+              updatedBy = EXCLUDED.updatedBy;
+          basePath: $.saveAnimalDetails.*
           jsonMaps:
             - jsonPath: $.ArrivalDetails.arrivalId
             - jsonPath: $.saveAnimalDetails.*.animalTypeId
@@ -38,7 +50,6 @@ serviceMaps:
             - jsonPath: $.saveAnimalDetails.*.updatedAt
             - jsonPath: $.saveAnimalDetails.*.createdBy
             - jsonPath: $.saveAnimalDetails.*.updatedBy
-
   
 
     - version: 1.0
@@ -96,4 +107,8 @@ serviceMaps:
             - jsonPath: $.InspectionDetail.tokenNo
             - jsonPath: $.InspectionDetail.resultRemark
             - jsonPath: $.InspectionDetail.animalTypeId
+
+
+
+
         
