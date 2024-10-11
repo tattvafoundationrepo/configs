@@ -8,13 +8,13 @@ serviceMaps:
       queryMaps:
         - query: |
             INSERT INTO eg_deonar_arrival 
-            (arrivalId, importPermission, stakeholderId, dateOfArrival, timeOfArrival, vehicleNumber, createdAt, updatedAt, createdBy, updatedBy)
+            (arrivalId, importPermission, stakeholderId, permissiondate, timeOfArrival, vehicleNumber, createdAt, updatedAt, createdBy, updatedBy)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (arrivalId)
             DO UPDATE SET 
               importPermission = EXCLUDED.importPermission,
               stakeholderId = EXCLUDED.stakeholderId,
-              dateOfArrival = EXCLUDED.dateOfArrival,
+              permissiondate = EXCLUDED.permissiondate,
               timeOfArrival = EXCLUDED.timeOfArrival,
               vehicleNumber = EXCLUDED.vehicleNumber,
               updatedAt = EXCLUDED.updatedAt,
@@ -25,7 +25,7 @@ serviceMaps:
             - jsonPath: $.ArrivalDetails.arrivalId
             - jsonPath: $.ArrivalDetails.importPermission
             - jsonPath: $.ArrivalDetails.stakeholderId
-            - jsonPath: $.ArrivalDetails.dateOfArrival
+            - jsonPath: $.ArrivalDetails.permissionDate
             - jsonPath: $.ArrivalDetails.timeOfArrival
             - jsonPath: $.ArrivalDetails.vehicleNumber
             - jsonPath: $.ArrivalDetails.createdAt
