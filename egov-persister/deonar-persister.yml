@@ -110,4 +110,28 @@ serviceMaps:
 
 
 
+    - version: 1.0
+      description: Persists animal assignment details in the table
+      fromTopic: save-animal-assignment
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_deonar_animal_assignment (
+              arrivalid, animaltypeid, tokennum, stakeholderid, createdat, updatedat, createdby, updatedby
+            ) VALUES ((SELECT id FROM eg_deonar_arrival WHERE arrivalId = ?), ?, ?, ?, ?, ?, ?, ?)
+          basePath: $.animalAssignments.*
+          jsonMaps:
+            - jsonPath: $.arrivalId
+            - jsonPath: $.animalAssignments.*.animalTypeId
+            - jsonPath: $.animalAssignments.*.token
+            - jsonPath: $.animalAssignments.*.assignedStakeholder
+            - jsonPath: $.animalAssignments.*.createdAt
+            - jsonPath: $.animalAssignments.*.updatedAt
+            - jsonPath: $.animalAssignments.*.createdBy
+            - jsonPath: $.animalAssignments.*.updatedBy
+        
+
+
+
+
         
