@@ -126,7 +126,7 @@ serviceMaps:
             - jsonPath: $.animalAssignments.*.token
             - jsonPath: $.animalAssignments.*.assignedStakeholder
             - jsonPath: $.animalAssignments.*.createdAt
-            - jsonPath: $.animalAssignments.*.updatedAt
+            - jsonPath: $.animalAssignments.*.updatedAt 
             - jsonPath: $.animalAssignments.*.createdBy
             - jsonPath: $.animalAssignments.*.updatedBy
         
