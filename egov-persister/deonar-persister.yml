@@ -35,9 +35,9 @@ serviceMaps:
 
         - query: |
             INSERT INTO eg_deonar_animal_at_arrival 
-            (arrivalId, animalTypeId, count, createdAt, updatedAt, createdBy, updatedBy)
+            (arrivalId, animalTypeId, token, createdAt, updatedAt, createdBy, updatedBy)
             VALUES ((SELECT id FROM eg_deonar_arrival WHERE arrivalId = ?), ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (arrivalId, animalTypeId,count)
+            ON CONFLICT (arrivalId, animalTypeId,token)
             DO UPDATE SET
               updatedAt = EXCLUDED.updatedAt,
               updatedBy = EXCLUDED.updatedBy;
