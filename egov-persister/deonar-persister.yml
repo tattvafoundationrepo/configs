@@ -118,7 +118,7 @@ serviceMaps:
         - query: >
             INSERT INTO public.eg_deonar_animal_assignment (
               arrivalid, animaltypeid, tokennum, stakeholderid, createdat, updatedat, createdby, updatedby
-            ) VALUES ((SELECT id FROM eg_deonar_arrival WHERE arrivalId = ?), ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
           basePath: $.animalAssignments.*
           jsonMaps:
             - jsonPath: $.arrivalId
@@ -129,7 +129,27 @@ serviceMaps:
             - jsonPath: $.animalAssignments.*.updatedAt 
             - jsonPath: $.animalAssignments.*.createdBy
             - jsonPath: $.animalAssignments.*.updatedBy
-        
+
+    - version: 1.0
+      description: Persists animal removal details in the table
+      fromTopic: save-animal-removal
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_deonar_animal_removal (
+              arrivalid, animaltypeid, tokennum, removalid, createdat, updatedat, createdby, updatedby
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: $.animalAssignments.*
+          jsonMaps: 
+            - jsonPath: $.arrivalId
+            - jsonPath: $.animalAssignments.*.animalTypeId
+            - jsonPath: $.animalAssignments.*.token 
+            - jsonPath: $.animalAssignments.*.deonarRemovalType
+            - jsonPath: $.animalAssignments.*.createdAt
+            - jsonPath: $.animalAssignments.*.updatedAt
+            - jsonPath: $.animalAssignments.*.createdBy
+            - jsonPath: $.animalAssignments.*.updatedBy
+    
 
 
 
