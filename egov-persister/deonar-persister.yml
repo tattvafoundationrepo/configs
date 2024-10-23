@@ -116,19 +116,35 @@ serviceMaps:
       isTransaction: true
       queryMaps:
         - query: >
+            INSERT INTO public.eg_deonar_assignment (
+              stakeholderid, ddreference, createdat, updatedat, createdby, updatedby,arrivalid
+            ) VALUES (?, ?, ?, ?, ?, ?,?)
+            RETURNING id;
+          basePath: $.assignments.*
+          jsonMaps:
+            - jsonPath: $.assignments.*.stakeholderId
+            - jsonPath: $.assignments.*.ddReference
+            - jsonPath: $.createdAt
+            - jsonPath: $.updatedAt
+            - jsonPath: $.createdBy
+            - jsonPath: $.updatedBy
+            - jsonPath: $.arrivalId
+        - query: >
             INSERT INTO public.eg_deonar_animal_assignment (
-              arrivalid, animaltypeid, tokennum, stakeholderid, createdat, updatedat, createdby, updatedby
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+              arrivalid, animaltypeid, tokennum, stakeholderid, createdat, updatedat, createdby, updatedby,assignmentid
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?,(select id from eg_deonar_assignment where stakeholderid =? and arrivalid = ?))
           basePath: $.animalAssignments.*
           jsonMaps:
             - jsonPath: $.arrivalId
             - jsonPath: $.animalAssignments.*.animalTypeId
             - jsonPath: $.animalAssignments.*.token
             - jsonPath: $.animalAssignments.*.assignedStakeholder
-            - jsonPath: $.animalAssignments.*.createdAt
-            - jsonPath: $.animalAssignments.*.updatedAt 
-            - jsonPath: $.animalAssignments.*.createdBy
-            - jsonPath: $.animalAssignments.*.updatedBy
+            - jsonPath: $.createdAt
+            - jsonPath: $.updatedAt 
+            - jsonPath: $.createdBy
+            - jsonPath: $.updatedBy
+            - jsonPath: $.animalAssignments.*.assignedStakeholder
+            - jsonPath: $.arrivalId
 
     - version: 1.0
       description: Persists animal removal details in the table
@@ -145,10 +161,10 @@ serviceMaps:
             - jsonPath: $.animalAssignments.*.animalTypeId
             - jsonPath: $.animalAssignments.*.token 
             - jsonPath: $.animalAssignments.*.deonarRemovalType
-            - jsonPath: $.animalAssignments.*.createdAt
-            - jsonPath: $.animalAssignments.*.updatedAt
-            - jsonPath: $.animalAssignments.*.createdBy
-            - jsonPath: $.animalAssignments.*.updatedBy
+            - jsonPath: $.createdAt
+            - jsonPath: $.updatedAt
+            - jsonPath: $.createdBy
+            - jsonPath: $.updatedBy
     
 
     - version: 1.0
@@ -157,27 +173,24 @@ serviceMaps:
       isTransaction: true
       queryMaps:
         - query: >
-            INSERT INTO public.eg_deonar_vehicle_parking (
-              vehicletype, vehiclenumber, parkingdate, parkingtime, departuredate , departuretime, createdat, updatedat, createdby, updatedby,
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            NSERT INTO public.eg_deonar_vehicle_parking (
+            vehicletype, vehiclenumber, parkingtime, departuretime, createdat, updatedat, createdby, updatedby
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (vehiclenumber) 
             DO UPDATE SET 
-            departuredate = EXCLUDED.departuredate,
             departuretime = EXCLUDED.departuretime,
             updatedat = EXCLUDED.updatedat,
             updatedby = EXCLUDED.updatedby;
           basePath: $
           jsonMaps: 
-            - jsonPath: $.vehicleParking.vehicleType
-            - jsonPath: $.vehicleParking.vehicleNumber
-            - jsonPath: $.parkingDate
-            - jsonPath: $.parkingTime
-            - jsonPath: $.departureDate
-            - jsonPath: $.departureTime
-            - jsonPath: $.createdAt
-            - jsonPath: $.updatedAt
-            - jsonPath: $.createdBy
-            - jsonPath: $.updatedBy
+              - jsonPath: $.vehicleParking.vehicleType
+              - jsonPath: $.vehicleParking.vehicleNumber
+              - jsonPath: $.parkingTime
+              - jsonPath: $.departureTime
+              - jsonPath: $.createdAt
+              - jsonPath: $.updatedAt
+              - jsonPath: $.createdBy
+              - jsonPath: $.updatedBy
 
 
     - version: 1.0
