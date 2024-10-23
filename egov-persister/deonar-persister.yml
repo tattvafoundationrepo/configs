@@ -151,6 +151,56 @@ serviceMaps:
             - jsonPath: $.animalAssignments.*.updatedBy
     
 
+    - version: 1.0
+      description: Persists Vehicle Parking details in the table
+      fromTopic: save-vehicle-parking
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_deonar_vehicle_parking (
+              vehicletype, vehiclenumber, parkingdate, parkingtime, departuredate , departuretime, createdat, updatedat, createdby, updatedby,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (vehiclenumber) 
+            DO UPDATE SET 
+            departuredate = EXCLUDED.departuredate,
+            departuretime = EXCLUDED.departuretime,
+            updatedat = EXCLUDED.updatedat,
+            updatedby = EXCLUDED.updatedby;
+          basePath: $
+          jsonMaps: 
+            - jsonPath: $.vehicleParking.vehicleType
+            - jsonPath: $.vehicleParking.vehicleNumber
+            - jsonPath: $.parkingDate
+            - jsonPath: $.parkingTime
+            - jsonPath: $.departureDate
+            - jsonPath: $.departureTime
+            - jsonPath: $.createdAt
+            - jsonPath: $.updatedAt
+            - jsonPath: $.createdBy
+            - jsonPath: $.updatedBy
+
+
+    - version: 1.0
+      description: Persists Deonar Fee Payment Records and associated data
+      fromTopic: topic_deonar_savefee
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO eg_deonar_fee_paid 
+            (paidby, feevalue, "method", referenceno, createdby, modifiedby, createdtime, modofiedtime,recieptno)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.paidby
+            - jsonPath: $.feevalue
+            - jsonPath: $.method
+            - jsonPath: $.refererenceno
+            - jsonPath: $.audit.createdBy
+            - jsonPath: $.audit.lastModifiedBy
+            - jsonPath: $.audit.createdTime
+            - jsonPath: $.audit.lastModifiedTime
+            - jsonPath: $.recieptno
+        
 
 
 
