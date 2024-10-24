@@ -173,10 +173,10 @@ serviceMaps:
       isTransaction: true
       queryMaps:
         - query: >
-            NSERT INTO public.eg_deonar_vehicle_parking (
+            INSERT INTO public.eg_deonar_vehicle_parking (
             vehicletype, vehiclenumber, parkingtime, departuretime, createdat, updatedat, createdby, updatedby
              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (vehiclenumber) 
+            ON CONFLICT (vehiclenumber, parkingtime) 
             DO UPDATE SET 
             departuretime = EXCLUDED.departuretime,
             updatedat = EXCLUDED.updatedat,
@@ -185,8 +185,8 @@ serviceMaps:
           jsonMaps: 
               - jsonPath: $.vehicleParking.vehicleType
               - jsonPath: $.vehicleParking.vehicleNumber
-              - jsonPath: $.parkingTime
-              - jsonPath: $.departureTime
+              - jsonPath: $.vehicleParking.parkingTime
+              - jsonPath: $.vehicleParking.departureTime
               - jsonPath: $.createdAt
               - jsonPath: $.updatedAt
               - jsonPath: $.createdBy
