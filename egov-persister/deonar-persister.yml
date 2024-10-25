@@ -117,9 +117,9 @@ serviceMaps:
       queryMaps:
         - query: >
             INSERT INTO public.eg_deonar_assignment (
-              stakeholderid, ddreference, createdat, updatedat, createdby, updatedby,arrivalid
-            ) VALUES (?, ?, ?, ?, ?, ?,?)
-            RETURNING id;
+              stakeholderid, ddreference, createdat, updatedat, createdby, updatedby
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            RETURNING ddreference;
           basePath: $.assignments.*
           jsonMaps:
             - jsonPath: $.assignments.*.stakeholderId
@@ -128,23 +128,21 @@ serviceMaps:
             - jsonPath: $.updatedAt
             - jsonPath: $.createdBy
             - jsonPath: $.updatedBy
-            - jsonPath: $.arrivalId
         - query: >
             INSERT INTO public.eg_deonar_animal_assignment (
-              arrivalid, animaltypeid, tokennum, stakeholderid, createdat, updatedat, createdby, updatedby,assignmentid
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?,(select id from eg_deonar_assignment where stakeholderid =? and arrivalid = ?))
+              arrivalid, animaltypeid, tokennum, createdat, updatedat, createdby, updatedby,ddreference
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
           basePath: $.animalAssignments.*
           jsonMaps:
             - jsonPath: $.arrivalId
             - jsonPath: $.animalAssignments.*.animalTypeId
             - jsonPath: $.animalAssignments.*.token
-            - jsonPath: $.animalAssignments.*.assignedStakeholder
             - jsonPath: $.createdAt
             - jsonPath: $.updatedAt 
             - jsonPath: $.createdBy
             - jsonPath: $.updatedBy
-            - jsonPath: $.animalAssignments.*.assignedStakeholder
-            - jsonPath: $.arrivalId
+            - jsonPath: $.assignments.*.ddReference
+
 
     - version: 1.0
       description: Persists animal removal details in the table
