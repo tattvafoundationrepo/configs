@@ -125,8 +125,8 @@ serviceMaps:
             - jsonPath: $.InspectionDetails.other
             - jsonPath: $.Inspection.updatedAt
             - jsonPath: $.Inspection.updatedBy
-            - jsonPath: $.InspectionDetails.arrivalId
-            - jsonPath: $.InspectionDetails.inspectionType
+            - jsonPath: $.InspectionDetails.entryUnitId
+            - jsonPath: $.InspectionDetails.inspectionId
             - jsonPath: $.InspectionDetails.animalTypeId
             - jsonPath: $.InspectionDetails.animalTokenNumber
     
