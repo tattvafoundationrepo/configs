@@ -71,7 +71,7 @@ serviceMaps:
               inspectionunitid = EXCLUDED.inspectionunitid,
               inspectiontype = EXCLUDED.inspectiontype
             RETURNING id;
-          basePath: $.Inspection
+          basePath: $
           jsonMaps:
             - jsonPath: $.Inspection.inspectionDate
             - jsonPath: $.Inspection.inspectionTime
@@ -85,29 +85,52 @@ serviceMaps:
             - jsonPath: $.Inspection.inspectionType
 
         - query: |
+            With Data as(
+            Select result,defaultremark,other,opinion
+            ,b.animaltypeid,
+            b.token
+            from eg_deonar_default_inspection_record a 
+            left join eg_deonar_animal_at_arrival b on a.animaltypeid = b.animaltypeid
+            where  type = ? and b.arrivalid in (select id from eg_deonar_arrival where arrivalid =?))
             INSERT INTO eg_deonar_inspection_detail
-            (inspectionid, createdat, updatedat, createdby, updatedby, report, tokenno, "resultremark",animaltypeid,opinion)
-            VALUES ((SELECT id FROM eg_deonar_inspection WHERE arrivalid = ? and inspectiontype = ?), ?, ?, ?, ?, ?::jsonb, ?, ?,?,?)
-            ON CONFLICT (inspectionid,animaltypeid,tokenno)
-            DO UPDATE SET 
-              updatedat = EXCLUDED.updatedat,
-              updatedby = EXCLUDED.updatedby,
-              report = EXCLUDED.report::jsonb,
-              "resultremark" = EXCLUDED."resultremark",
-              opinion = EXCLUDED.opinion;
-          basePath: $.InspectionDetail
+              (inspectionid,report,"resultremark",other,opinion,tokenno, animaltypeid,createdat, updatedat, createdby, updatedby)
+            SELECT 
+              id, result,defaultremark,other,opinion,token,animaltypeid,?,?,?,?
+            FROM eg_deonar_inspection , data
+          basePath: $
           jsonMaps:
-            - jsonPath: $.Inspection.arrivalId
             - jsonPath: $.Inspection.inspectionType
-            - jsonPath: $.InspectionDetail.createdAt
-            - jsonPath: $.InspectionDetail.updatedAt 
-            - jsonPath: $.InspectionDetail.createdBy
-            - jsonPath: $.InspectionDetail.updatedBy
-            - jsonPath: $.InspectionDetail.report
-            - jsonPath: $.InspectionDetail.tokenNo
-            - jsonPath: $.InspectionDetail.resultRemark
-            - jsonPath: $.InspectionDetail.animalTypeId
-            - jsonPath: $.InspectionRequest.opinion
+            - jsonPath: $.Inspection.arrivalId
+            - jsonPath: $.Inspection.createdAt
+            - jsonPath: $.Inspection.updatedAt 
+            - jsonPath: $.Inspection.createdBy
+            - jsonPath: $.Inspection.updatedBy
+
+
+    - version: 1.0
+      description: Persists Deonar Inspection details
+      fromTopic: update-inspection-details
+      isTransaction: true
+      queryMaps:
+        - query: |
+            UPDATE eg_deonar_inspection_detail SET  
+              report=?::jsonb, resultremark=?, opinion=? , other = ? , updatedat=?,  updatedby=?
+            WHERE inspectionid=( select id from eg_deonar_inspection where arrivalid = ? and inspectiontype = ?) 
+            and animaltypeid = ? and tokenno = ?
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.InspectionDetails.report
+            - jsonPath: $.InspectionDetails.remark
+            - jsonPath: $.InspectionDetails.opinion
+            - jsonPath: $.InspectionDetails.other
+            - jsonPath: $.Inspection.updatedAt
+            - jsonPath: $.Inspection.updatedBy
+            - jsonPath: $.InspectionDetails.arrivalId
+            - jsonPath: $.InspectionDetails.inspectionType
+            - jsonPath: $.InspectionDetails.animalTypeId
+            - jsonPath: $.InspectionDetails.animalTokenNumber
+    
+  
 
 
 
