@@ -95,8 +95,8 @@ serviceMaps:
             INSERT INTO eg_deonar_inspection_detail
               (inspectionid,report,"resultremark",other,opinion,tokenno, animaltypeid,createdat, updatedat, createdby, updatedby)
             SELECT 
-              id, result,defaultremark,other,opinion,token,animaltypeid,?,?,?,?
-            FROM eg_deonar_inspection , data
+              ei.id, result,defaultremark,other,opinion,token,animaltypeid,?,?,?,?
+            FROM eg_deonar_inspection ei, data where ei.inspectiontype = ? and ei.arrivalid = ?
           basePath: $
           jsonMaps:
             - jsonPath: $.Inspection.inspectionType
@@ -105,6 +105,8 @@ serviceMaps:
             - jsonPath: $.Inspection.updatedAt 
             - jsonPath: $.Inspection.createdBy
             - jsonPath: $.Inspection.updatedBy
+            - jsonPath: $.Inspection.inspectionType
+            - jsonPath: $.Inspection.arrivalId
 
 
     - version: 1.0
