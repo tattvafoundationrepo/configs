@@ -232,7 +232,7 @@ serviceMaps:
             - jsonPath: $.paidby
             - jsonPath: $.feevalue
             - jsonPath: $.method
-            - jsonPath: $.refererenceno
+            - jsonPath: $.referenceno
             - jsonPath: $.audit.createdBy
             - jsonPath: $.audit.lastModifiedBy
             - jsonPath: $.audit.createdTime
