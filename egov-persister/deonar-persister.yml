@@ -225,8 +225,8 @@ serviceMaps:
       queryMaps:
         - query: |
             INSERT INTO eg_deonar_fee_paid 
-            (paidby, feevalue, "method", referenceno, createdby, modifiedby, createdtime, modofiedtime,recieptno)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
+            (paidby, feevalue, "method", referenceno, createdby, modifiedby, createdtime, modofiedtime,recieptno,collectiontype)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)
           basePath: $
           jsonMaps:
             - jsonPath: $.paidby
@@ -238,6 +238,7 @@ serviceMaps:
             - jsonPath: $.audit.createdTime
             - jsonPath: $.audit.lastModifiedTime
             - jsonPath: $.recieptno
+            - jsonPath: $.feetype
         
 
 
