@@ -229,7 +229,7 @@ serviceMaps:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)
           basePath: $
           jsonMaps:
-            - jsonPath: $.paidby
+            - jsonPath: $.uuid
             - jsonPath: $.feevalue
             - jsonPath: $.method
             - jsonPath: $.referenceno
