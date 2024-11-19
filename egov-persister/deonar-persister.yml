@@ -239,6 +239,60 @@ serviceMaps:
             - jsonPath: $.audit.lastModifiedTime
             - jsonPath: $.recieptno
             - jsonPath: $.feetype
+
+
+    - version: 1.0
+      description: Persists gate pass details in the table
+      fromTopic: save-gate-pass-details
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_deonar_gatepass_details (
+              vehicle_type, vehicle_number, receiver_name, receiver_contact, type_of_animal, 
+              carcas_weight, kena_weight, reference_number, shopkeeper, helkari, createddate, 
+              lastmodifieddate, createdby, lastmodifiedby
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.gatePassDetails.vehicleType
+            - jsonPath: $.gatePassDetails.vehicleNumber
+            - jsonPath: $.gatePassDetails.receiverName
+            - jsonPath: $.gatePassDetails.receiverContact
+            - jsonPath: $.gatePassDetails.typeOfAnimal
+            - jsonPath: $.gatePassDetails.carcasWeight
+            - jsonPath: $.gatePassDetails.kenaWeight
+            - jsonPath: $.gatePassDetails.referenceNumber
+            - jsonPath: $.gatePassDetails.shopkeeper
+            - jsonPath: $.gatePassDetails.helkari
+            - jsonPath: $.gatePassDetails.createdDate
+            - jsonPath: $.gatePassDetails.lastModifiedDate
+            - jsonPath: $.gatePassDetails.createdBy
+            - jsonPath: $.gatePassDetails.lastModifiedBy
+
+
+
+    - version: 1.0
+      description: Persists Raised Penalty Records
+      fromTopic: topic_deonar_savepenalty
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO eg_deonar_raised_penalties 
+            (stakeholderid,  penaltyid, amount, penalty_reference, is_paid, createddate, lastmodifieddate, createdby, lastmodifiedby, unit)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.stakeholderId
+            - jsonPath: $.penaltyId
+            - jsonPath: $.amount
+            - jsonPath: $.penaltyReference
+            - jsonPath: $.isPaid
+            - jsonPath: $.auditDetails.createdTime
+            - jsonPath: $.auditDetails.lastModifiedTime
+            - jsonPath: $.auditDetails.createdBy
+            - jsonPath: $.auditDetails.lastModifiedBy
+            - jsonPath: $.units       
+    
         
 
 
