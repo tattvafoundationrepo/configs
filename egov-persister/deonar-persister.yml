@@ -93,9 +93,9 @@ serviceMaps:
             left join eg_deonar_animal_at_arrival b on a.animaltypeid = b.animaltypeid
             where  type = ? and b.arrivalid in (select id from eg_deonar_arrival where arrivalid =?))
             INSERT INTO eg_deonar_inspection_detail
-              (inspectionid,report,"resultremark",other,opinion,tokenno, animaltypeid,createdat, updatedat, createdby, updatedby)
+              (inspectionid,report,"resultremark",other,opinion,tokenno, animaltypeid,createdat, updatedat, createdby, updatedby,quarters)
             SELECT 
-              ei.id, result,defaultremark,other,opinion,token,animaltypeid,?,?,?,?
+              ei.id, result,defaultremark,other,opinion,token,animaltypeid,?,?,?,?,case when ei.inspectiontype = 4 then  case when data.animalTypeId = 3 then 4 else 1 end else null end
             FROM eg_deonar_inspection ei, data where ei.inspectiontype = ? and ei.arrivalid = ?
           basePath: $
           jsonMaps:
@@ -116,7 +116,7 @@ serviceMaps:
       queryMaps:
         - query: |
             UPDATE eg_deonar_inspection_detail SET  
-              report=?::jsonb, resultremark=?, opinion=? , other = ? , updatedat=?,  updatedby=?
+              report=?::jsonb, resultremark=?, opinion=? , other = ? , updatedat=?,  updatedby=?, quarters=?
             WHERE inspectionid=( select id from eg_deonar_inspection where arrivalid = ? and inspectiontype = ?) 
             and animaltypeid = ? and tokenno = ?
           basePath: $
@@ -127,6 +127,7 @@ serviceMaps:
             - jsonPath: $.InspectionDetails.other
             - jsonPath: $.Inspection.updatedAt
             - jsonPath: $.Inspection.updatedBy
+            - jsonPath: $.InspectionDetails.animalQuarters
             - jsonPath: $.InspectionDetails.entryUnitId
             - jsonPath: $.InspectionDetails.inspectionId
             - jsonPath: $.InspectionDetails.animalTypeId
