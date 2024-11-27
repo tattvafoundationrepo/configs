@@ -605,11 +605,12 @@ serviceMaps:
             INSERT INTO eg_bmc_userbank(
               bankbranchid, userid, tenantid, accountnumber, createdby, modifiedby, modifiedon,isactive
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (userid,bankbranchid,tenantid,isactive) 
+            ON CONFLICT (userid,bankbranchid,tenantid) 
             DO UPDATE SET
               accountnumber = EXCLUDED.accountnumber,
               createdby = EXCLUDED.createdby,
-              modifiedby = EXCLUDED.modifiedby;
+              modifiedby = EXCLUDED.modifiedby,
+              isactive = EXCLUDED.isactive;
           basePath: $.updatedBank.*
           jsonMaps:
             - jsonPath: $.updatedBank.*.branchId
@@ -632,7 +633,7 @@ serviceMaps:
             INSERT INTO eg_bmc_userqualification(
               "userID", "qualificationID", createdon, modifiedon, createdby, modifiedby, percentage, board, year_of_passing,available
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT ("userID","qualificationID",available) 
+            ON CONFLICT ("userID","qualificationID") 
             DO UPDATE SET
               createdon = EXCLUDED.createdon,
               modifiedon = EXCLUDED.modifiedon,
@@ -640,7 +641,8 @@ serviceMaps:
               modifiedby = EXCLUDED.modifiedby,
               percentage = EXCLUDED.percentage,
               board = EXCLUDED.board,
-              year_of_passing = EXCLUDED.year_of_passing;
+              year_of_passing = EXCLUDED.year_of_passing,
+              available = EXCLUDED.available;
           basePath: $.updatedQualifications.*
           jsonMaps:
             - jsonPath: $.updatedQualifications.*.userId
@@ -898,8 +900,9 @@ serviceMaps:
             INSERT INTO public.eg_bmc_userdocument (
               documentid, userid, tenantid, available, modifiedon, createdby, modifiedby,documentnumber
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (documentid, userid, tenantid ,available) 
+            ON CONFLICT (documentid, userid, tenantid ) 
             DO UPDATE SET
+              available = EXCLUDED.available,
               modifiedon = EXCLUDED.modifiedon,
               createdby = EXCLUDED.createdby,
               modifiedby = EXCLUDED.modifiedby,
