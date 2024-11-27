@@ -603,9 +603,9 @@ serviceMaps:
       queryMaps:
         - query: >
             INSERT INTO eg_bmc_userbank(
-              bankbranchid, userid, tenantid, accountnumber, createdby, modifiedby, modifiedon
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (userid,bankbranchid,tenantid) 
+              bankbranchid, userid, tenantid, accountnumber, createdby, modifiedby, modifiedon,isactive
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (userid,bankbranchid,tenantid,isactive) 
             DO UPDATE SET
               accountnumber = EXCLUDED.accountnumber,
               createdby = EXCLUDED.createdby,
@@ -619,6 +619,7 @@ serviceMaps:
             - jsonPath: $.updatedBank.*.createdBy
             - jsonPath: $.updatedBank.*.modifiedBy
             - jsonPath: $.updatedBank.*.modifiedOn
+            - jsonPath: $.updatedBank.*.isActive
    
 
 
@@ -629,9 +630,9 @@ serviceMaps:
       queryMaps:
         - query: >
             INSERT INTO eg_bmc_userqualification(
-              "userID", "qualificationID", createdon, modifiedon, createdby, modifiedby, percentage, board, year_of_passing
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT ("userID","qualificationID") 
+              "userID", "qualificationID", createdon, modifiedon, createdby, modifiedby, percentage, board, year_of_passing,available
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT ("userID","qualificationID",available) 
             DO UPDATE SET
               createdon = EXCLUDED.createdon,
               modifiedon = EXCLUDED.modifiedon,
@@ -650,7 +651,8 @@ serviceMaps:
             - jsonPath: $.updatedQualifications.*.modifiedBy
             - jsonPath: $.updatedQualifications.*.percentage
             - jsonPath: $.updatedQualifications.*.board.value
-            - jsonPath: $.updatedQualifications.*.yearOfPassing.value     
+            - jsonPath: $.updatedQualifications.*.yearOfPassing.value 
+            - jsonPath: $.updatedQualifications.*.available    
 
 
 
@@ -896,9 +898,8 @@ serviceMaps:
             INSERT INTO public.eg_bmc_userdocument (
               documentid, userid, tenantid, available, modifiedon, createdby, modifiedby,documentnumber
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (documentid, userid, tenantid) 
+            ON CONFLICT (documentid, userid, tenantid ,available) 
             DO UPDATE SET
-              available = EXCLUDED.available,
               modifiedon = EXCLUDED.modifiedon,
               createdby = EXCLUDED.createdby,
               modifiedby = EXCLUDED.modifiedby,
