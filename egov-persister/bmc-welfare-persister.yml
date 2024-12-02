@@ -553,3 +553,506 @@ serviceMaps:
             - jsonPath: $.SchemeMachine.*.grantAmount
             - jsonPath: $.SchemeMachine.*.id
 
+    
+    
+
+                
+    - version: 1.0
+      description: Persists user details in tables
+      fromTopic: upsert-aadharuser
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_aadharuser(
+             aadharref, userid, tenantid, aadharfathername, aadharname, 
+             aadhardob, aadharmobile, gender, createdon, modifiedon, 
+             createdby, modifiedby
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (userid, tenantid) 
+            DO UPDATE SET
+             aadharref = EXCLUDED.aadharref,
+             aadharfathername = EXCLUDED.aadharfathername,
+             aadharname = EXCLUDED.aadharname,
+             aadhardob = EXCLUDED.aadhardob,
+             aadharmobile = EXCLUDED.aadharmobile,
+             gender = EXCLUDED.gender,
+             createdon = EXCLUDED.createdon,
+             modifiedon = EXCLUDED.modifiedon,
+             createdby = EXCLUDED.createdby,
+             modifiedby = EXCLUDED.modifiedby;
+          basePath: AadharUser
+          jsonMaps:
+            - jsonPath: $.AadharUser.aadharRef
+            - jsonPath: $.AadharUser.userId
+            - jsonPath: $.AadharUser.tenantId
+            - jsonPath: $.AadharUser.father
+            - jsonPath: $.AadharUser.aadharName
+            - jsonPath: $.AadharUser.dob
+            - jsonPath: $.AadharUser.aadharMobile
+            - jsonPath: $.AadharUser.gender
+            - jsonPath: $.AadharUser.createdOn
+            - jsonPath: $.AadharUser.modifiedOn
+            - jsonPath: $.AadharUser.createdBy
+            - jsonPath: $.AadharUser.modifiedBy
+
+
+    - version: 1.0
+      description: Persists user bank details in tables
+      fromTopic: upsert-userbank
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_userbank(
+              bankbranchid, userid, tenantid, accountnumber, createdby, modifiedby, modifiedon,isactive
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (userid,bankbranchid,tenantid) 
+            DO UPDATE SET
+              accountnumber = EXCLUDED.accountnumber,
+              createdby = EXCLUDED.createdby,
+              modifiedby = EXCLUDED.modifiedby,
+              isactive = EXCLUDED.isactive;
+          basePath: $.updatedBank.*
+          jsonMaps:
+            - jsonPath: $.updatedBank.*.branchId
+            - jsonPath: $.updatedBank.*.userId
+            - jsonPath: $.updatedBank.*.tenantId
+            - jsonPath: $.updatedBank.*.accountNumber
+            - jsonPath: $.updatedBank.*.createdBy
+            - jsonPath: $.updatedBank.*.modifiedBy
+            - jsonPath: $.updatedBank.*.modifiedOn
+            - jsonPath: $.updatedBank.*.isActive
+   
+
+
+    - version: 1.0
+      description: Persists user qualification details in tables
+      fromTopic: upsert-userqualification
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_userqualification(
+              "userID", "qualificationID", createdon, modifiedon, createdby, modifiedby, percentage, board, year_of_passing,available
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT ("userID","qualificationID") 
+            DO UPDATE SET
+              createdon = EXCLUDED.createdon,
+              modifiedon = EXCLUDED.modifiedon,
+              createdby = EXCLUDED.createdby,
+              modifiedby = EXCLUDED.modifiedby,
+              percentage = EXCLUDED.percentage,
+              board = EXCLUDED.board,
+              year_of_passing = EXCLUDED.year_of_passing,
+              available = EXCLUDED.available;
+          basePath: $.updatedQualifications.*
+          jsonMaps:
+            - jsonPath: $.updatedQualifications.*.userId
+            - jsonPath: $.updatedQualifications.*.qualification.id
+            - jsonPath: $.updatedQualifications.*.createdOn
+            - jsonPath: $.updatedQualifications.*.modifiedOn
+            - jsonPath: $.updatedQualifications.*.createdBy
+            - jsonPath: $.updatedQualifications.*.modifiedBy
+            - jsonPath: $.updatedQualifications.*.percentage
+            - jsonPath: $.updatedQualifications.*.board.value
+            - jsonPath: $.updatedQualifications.*.yearOfPassing.value 
+            - jsonPath: $.updatedQualifications.*.available    
+
+
+
+
+    - version: 1.0
+      description: Persists user other details in tables
+      fromTopic: upsert-userotherdetails
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_userotherdetails(
+              userid, tenantid, casteid, religionid, divyangcardid, divyangpercent, transgenderid, createdon, modifiedon, createdby, modifiedby, divyangid, block, zone, ward, occupation,income
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (userid, tenantid) 
+            DO UPDATE SET
+              casteid = EXCLUDED.casteid,
+              religionid = EXCLUDED.religionid,
+              divyangcardid = EXCLUDED.divyangcardid,
+              divyangpercent = EXCLUDED.divyangpercent,
+              transgenderid = EXCLUDED.transgenderid,
+              createdon = EXCLUDED.createdon,
+              modifiedon = EXCLUDED.modifiedon,
+              createdby = EXCLUDED.createdby,
+              modifiedby = EXCLUDED.modifiedby,
+              divyangid = EXCLUDED.divyangid,
+              block = EXCLUDED.block,
+              zone = EXCLUDED.zone,
+              ward = EXCLUDED.ward,
+              occupation = EXCLUDED.occupation,
+              income = EXCLUDED.income;
+          basePath: UserOtherDetails
+          jsonMaps:
+            - jsonPath: $.UserOtherDetails.userId
+            - jsonPath: $.UserOtherDetails.tenantId
+            - jsonPath: $.UserOtherDetails.caste.id
+            - jsonPath: $.UserOtherDetails.religion.id
+            - jsonPath: $.UserOtherDetails.divyangCardId
+            - jsonPath: $.UserOtherDetails.divyangPercent
+            - jsonPath: $.UserOtherDetails.transgenderId
+            - jsonPath: $.UserOtherDetails.createdOn
+            - jsonPath: $.UserOtherDetails.modifiedOn
+            - jsonPath: $.UserOtherDetails.createdBy
+            - jsonPath: $.UserOtherDetails.modifiedBy
+            - jsonPath: $.UserOtherDetails.divyang.id
+            - jsonPath: $.UserOtherDetails.block
+            - jsonPath: $.UserOtherDetails.zone
+            - jsonPath: $.UserOtherDetails.ward  
+            - jsonPath: $.UserOtherDetails.occupation
+            - jsonPath: $.UserOtherDetails.income
+
+
+
+
+    - version: 1.0
+      description: Persists user address details in tables
+      fromTopic: insert-useraddress
+      isTransaction: true
+      queryMaps:
+        - query: >  
+            INSERT INTO eg_address(
+              userid, tenantid, pincode, housenobldgapt, subdistrict, landmark, streetroadline, citytownvillage, arealocalitysector, district, state, id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: updatedAddress
+          jsonMaps:
+            - jsonPath: $.updatedAddress.userId
+            - jsonPath: $.updatedAddress.tenantId
+            - jsonPath: $.updatedAddress.pinCode.value
+            - jsonPath: $.updatedAddress.house
+            - jsonPath: $.updatedAddress.subDistrict
+            - jsonPath: $.updatedAddress.landmark
+            - jsonPath: $.updatedAddress.street
+            - jsonPath: $.updatedAddress.city
+            - jsonPath: $.updatedAddress.locality
+            - jsonPath: $.updatedAddress.district
+            - jsonPath: $.updatedAddress.state
+            - jsonPath: $.updatedAddress.id  
+
+
+    - version: 1.0
+      description: Updates user address details in tables
+      fromTopic: update-useraddress
+      isTransaction: true
+      queryMaps:
+        - query: >
+            UPDATE eg_address
+            SET
+              pincode = ?,
+              housenobldgapt = ?,
+              subdistrict = ?,
+              landmark = ?,
+              streetroadline = ?,
+              citytownvillage = ?,
+              arealocalitysector = ?,
+              district = ?,
+              state = ?,
+              id = ?
+            WHERE
+              userid = ? AND tenantid = ?
+          basePath: updatedAddress
+          jsonMaps:
+            - jsonPath: $.updatedAddress.pinCode.value
+            - jsonPath: $.updatedAddress.house
+            - jsonPath: $.updatedAddress.subDistrict
+            - jsonPath: $.updatedAddress.landmark
+            - jsonPath: $.updatedAddress.street
+            - jsonPath: $.updatedAddress.city
+            - jsonPath: $.updatedAddress.locality
+            - jsonPath: $.updatedAddress.district
+            - jsonPath: $.updatedAddress.state
+            - jsonPath: $.updatedAddress.id
+            - jsonPath: $.updatedAddress.userId
+            - jsonPath: $.updatedAddress.tenantId        
+
+
+
+    - version: 1.0
+      description: Persists user scheme application details in tables
+      fromTopic: save-user-scheme-application
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_userschemeapplication (
+              applicationnumber, userid, tenantid, optedid, applicationstatus, verificationstatus, 
+              firstapprovalstatus, randomselection, finalapproval, submitted, modifiedon, createdby, modifiedby, agreetopay, statement
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: SchemeApplication
+          jsonMaps:
+            - jsonPath: $.SchemeApplication.applicationNumber
+            - jsonPath: $.SchemeApplication.userId
+            - jsonPath: $.SchemeApplication.tenantId
+            - jsonPath: $.SchemeApplication.optedId
+            - jsonPath: $.SchemeApplication.applicationStatus
+            - jsonPath: $.SchemeApplication.verificationStatus
+            - jsonPath: $.SchemeApplication.firstApprovalStatus
+            - jsonPath: $.SchemeApplication.randomSelection
+            - jsonPath: $.SchemeApplication.finalApproval
+            - jsonPath: $.SchemeApplication.submitted
+            - jsonPath: $.SchemeApplication.modifiedOn
+            - jsonPath: $.SchemeApplication.createdBy
+            - jsonPath: $.SchemeApplication.modifiedBy
+            - jsonPath: $.SchemeApplication.agreeToPay
+            - jsonPath: $.SchemeApplication.statement
+
+
+
+    - version: 1.0
+      description: Updates specific fields of user scheme application details in tables
+      fromTopic: update-user-scheme-application
+      isTransaction: true
+      queryMaps:
+        - query: >
+            UPDATE eg_bmc_userschemeapplication 
+            SET 
+              verificationstatus = ?, 
+              firstapprovalstatus = ?, 
+              randomselection = ?, 
+              finalapproval = ?, 
+              submitted = ?, 
+              modifiedon = ?
+            WHERE 
+              applicationnumber = ?
+          basePath: SchemeApplication
+          jsonMaps:
+            - jsonPath: $.SchemeApplication.verificationStatus
+            - jsonPath: $.SchemeApplication.firstApprovalStatus
+            - jsonPath: $.SchemeApplication.randomSelection
+            - jsonPath: $.SchemeApplication.finalApproval
+            - jsonPath: $.SchemeApplication.submitted
+            - jsonPath: $.SchemeApplication.modifiedOn
+            - jsonPath: $.SchemeApplication.applicationNumber
+        
+
+    - version: 1.0
+      description: Persists scheme course details in tables
+      fromTopic: save-scheme-course
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_schemecourse (
+              schemeid, courseid, grantamount
+            ) VALUES (?, ?, ?)
+          basePath: SchemeCourse
+          jsonMaps:
+            - jsonPath: $.SchemeCourse.schemeId
+            - jsonPath: $.SchemeCourse.courseId
+            - jsonPath: $.SchemeCourse.grantAmount
+
+
+    - version: 1.0
+      description: Persists scheme machine details in tables
+      fromTopic: save-scheme-machine
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_bmc_schememachine (
+              machineid, schemeid, grantamount
+            ) VALUES (?, ?, ?)
+          basePath: SchemeMachine
+          jsonMaps:
+            - jsonPath: $.SchemeMachine.machineId
+            - jsonPath: $.SchemeMachine.schemeId
+            - jsonPath: $.SchemeMachine.grantAmount
+
+    - version: 1.0
+      description: Persists user sub-scheme mapping details in tables
+      fromTopic: upsert-usersubschememapping
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_usersubschememapping (
+              applicationnumber, machineid, courseid, userid, tenantid, createdon, createdby, modifiedon, modifiedby
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (applicationnumber) 
+            DO UPDATE SET
+              machineid = EXCLUDED.machineid,
+              courseid = EXCLUDED.courseid,
+              userid = EXCLUDED.userid,
+              tenantid = EXCLUDED.tenantid,
+              createdon = EXCLUDED.createdon,
+              createdby = EXCLUDED.createdby,
+              modifiedon = EXCLUDED.modifiedon,
+              modifiedby = EXCLUDED.modifiedby;
+          basePath: UserSubSchemeMapping
+          jsonMaps:
+            - jsonPath: $.UserSubSchemeMapping.applicationNumber
+            - jsonPath: $.UserSubSchemeMapping.machineId
+            - jsonPath: $.UserSubSchemeMapping.courseId
+            - jsonPath: $.UserSubSchemeMapping.userId
+            - jsonPath: $.UserSubSchemeMapping.tenantId
+            - jsonPath: $.UserSubSchemeMapping.createdOn
+            - jsonPath: $.UserSubSchemeMapping.createdBy
+            - jsonPath: $.UserSubSchemeMapping.modifiedOn
+            - jsonPath: $.UserSubSchemeMapping.modifiedBy
+        
+
+
+    - version: 1.0
+      description: Persists user document details in tables
+      fromTopic: upsert-user-document
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_bmc_userdocument (
+              documentid, userid, tenantid, available, modifiedon, createdby, modifiedby,documentnumber
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (documentid, userid, tenantid ) 
+            DO UPDATE SET
+              available = EXCLUDED.available,
+              modifiedon = EXCLUDED.modifiedon,
+              createdby = EXCLUDED.createdby,
+              modifiedby = EXCLUDED.modifiedby,
+              documentnumber = EXCLUDED.documentnumber;
+          basePath: $.updatedDocument.*
+          jsonMaps:
+            - jsonPath: $.updatedDocument.*.document.id
+            - jsonPath: $.updatedDocument.*.document.userId
+            - jsonPath: $.updatedDocument.*.document.tenantId
+            - jsonPath: $.updatedDocument.*.document.available
+            - jsonPath: $.updatedDocument.*.document.modifiedOn
+            - jsonPath: $.updatedDocument.*.document.createdBy
+            - jsonPath: $.updatedDocument.*.document.modifiedBy
+            - jsonPath: $.updatedDocument.*.documentNo       
+
+
+
+
+
+    
+
+
+
+
+    - version: 1.0
+      description: Persists application snapshot details in table
+      fromTopic: upsert-application-snapshot
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_bmc_application_snapshot(
+              housenobldgapt, subdistrict, postoffice, landmark, country, "type", streetroadline, citytownvillage, arealocalitysector, district, state, pincode,
+              aadharref, aadharfathername, aadharname, aadharmobile, gender, aadhardob,
+              user_documents, user_banks, user_qualifications,
+              applicationnumber, machineid, courseid, optedid, applicationstatus, verificationstatus, firstapprovalstatus, randomselection, finalapproval, submitted, agreetopay, "statement",
+              userid, tenantid, createdon, createdby, modifiedon, modifiedby,
+              casteid, religionid, divyangcardid, divyangpercent, transgenderid, divyangid, rationcardcategory, udid, "zone", block, ward, occupation, income
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
+            ON CONFLICT (userid, tenantid, applicationnumber) 
+            DO UPDATE SET
+              housenobldgapt = EXCLUDED.housenobldgapt,
+              subdistrict = EXCLUDED.subdistrict,
+              postoffice = EXCLUDED.postoffice,
+              landmark = EXCLUDED.landmark,
+              country = EXCLUDED.country,
+              "type" = EXCLUDED."type",
+              streetroadline = EXCLUDED.streetroadline,
+              citytownvillage = EXCLUDED.citytownvillage,
+              arealocalitysector = EXCLUDED.arealocalitysector,
+              district = EXCLUDED.district,
+              state = EXCLUDED.state,
+              pincode = EXCLUDED.pincode,
+              aadharref = EXCLUDED.aadharref,
+              aadharfathername = EXCLUDED.aadharfathername,
+              aadharname = EXCLUDED.aadharname,
+              aadharmobile = EXCLUDED.aadharmobile,
+              gender = EXCLUDED.gender,
+              aadhardob = EXCLUDED.aadhardob,
+              user_documents = EXCLUDED.user_documents::jsonb,
+              user_banks = EXCLUDED.user_banks::jsonb,
+              user_qualifications = EXCLUDED.user_qualifications::jsonb,
+              applicationnumber = EXCLUDED.applicationnumber,
+              machineid = EXCLUDED.machineid,
+              courseid = EXCLUDED.courseid,
+              optedid = EXCLUDED.optedid,
+              applicationstatus = EXCLUDED.applicationstatus,
+              verificationstatus = EXCLUDED.verificationstatus,
+              firstapprovalstatus = EXCLUDED.firstapprovalstatus,
+              randomselection = EXCLUDED.randomselection,
+              finalapproval = EXCLUDED.finalapproval,
+              submitted = EXCLUDED.submitted,
+              agreetopay = EXCLUDED.agreetopay,
+              "statement" = EXCLUDED."statement",
+              createdon = EXCLUDED.createdon,
+              createdby = EXCLUDED.createdby,
+              modifiedon = EXCLUDED.modifiedon,
+              modifiedby = EXCLUDED.modifiedby,
+              casteid = EXCLUDED.casteid,
+              religionid = EXCLUDED.religionid,
+              divyangcardid = EXCLUDED.divyangcardid,
+              divyangpercent = EXCLUDED.divyangpercent,
+              transgenderid = EXCLUDED.transgenderid,
+              divyangid = EXCLUDED.divyangid,
+              rationcardcategory = EXCLUDED.rationcardcategory,
+              udid = EXCLUDED.udid,
+              "zone" = EXCLUDED."zone",
+              block = EXCLUDED.block,
+              ward = EXCLUDED.ward,
+              occupation = EXCLUDED.occupation,
+              income = EXCLUDED.income;
+          basePath: ApplicationSnapshot
+          jsonMaps:
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.house
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.subDistrict
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.postOffice
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.landmark
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.country
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.type
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.street
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.city
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.locality
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.district
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.state
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.pinCode.value
+
+            - jsonPath: $.ApplicationSnapshot.AadharUser.aadharRef
+            - jsonPath: $.ApplicationSnapshot.AadharUser.father
+            - jsonPath: $.ApplicationSnapshot.AadharUser.aadharName
+            - jsonPath: $.ApplicationSnapshot.AadharUser.aadharMobile
+            - jsonPath: $.ApplicationSnapshot.AadharUser.gender
+            - jsonPath: $.ApplicationSnapshot.AadharUser.dob
+
+            - jsonPath: $.ApplicationSnapshot.updatedDocument
+            - jsonPath: $.ApplicationSnapshot.updatedBank
+            - jsonPath: $.ApplicationSnapshot.updatedQualifications
+
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.applicationNumber
+
+            - jsonPath: $.ApplicationSnapshot.UserSubSchemeMapping.machineId
+            - jsonPath: $.ApplicationSnapshot.UserSubSchemeMapping.courseId
+
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.optedId
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.applicationStatus
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.verificationStatus
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.firstApprovalStatus
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.randomSelection
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.finalApproval
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.submitted
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.agreeToPay
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.statement
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.userId
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.tenantId
+            - jsonPath: $.ApplicationSnapshot.AadharUser.createdOn
+            - jsonPath: $.ApplicationSnapshot.AadharUser.createdBy
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.modifiedOn
+            - jsonPath: $.ApplicationSnapshot.SchemeApplication.modifiedBy
+
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.caste.id
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.religion.id
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.divyangCardId
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.divyangPercent
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.transgenderId
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.divyang.id
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.rationCardCategory
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.udid
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.zone
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.block
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.ward
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.occupation
+            - jsonPath: $.ApplicationSnapshot.UserOtherDetails.income
+
+
+
