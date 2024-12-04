@@ -249,26 +249,23 @@ serviceMaps:
       queryMaps:
         - query: >
             INSERT INTO public.eg_deonar_gatepass_details (
-              vehicle_type, vehicle_number, receiver_name, receiver_contact, type_of_animal, 
-              carcas_weight, kena_weight, reference_number, shopkeeper, helkari, createddate, 
-              lastmodifieddate, createdby, lastmodifiedby
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              animaldetails , vehicle_number, receiver_name, receiver_contact, 
+              total, reference_number, shopkeeper, createdtime, 
+              modofiedtime, createdby, modifiedby
+            ) VALUES (?::jsonb, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           basePath: $
           jsonMaps:
-            - jsonPath: $.gatePassDetails.vehicleType
+            - jsonPath: $.gatePassDetails.jsonAnimalDetails
             - jsonPath: $.gatePassDetails.vehicleNumber
             - jsonPath: $.gatePassDetails.receiverName
             - jsonPath: $.gatePassDetails.receiverContact
-            - jsonPath: $.gatePassDetails.typeOfAnimal
-            - jsonPath: $.gatePassDetails.carcasWeight
-            - jsonPath: $.gatePassDetails.kenaWeight
-            - jsonPath: $.gatePassDetails.referenceNumber
+            - jsonPath: $.gatePassDetails.total
+            - jsonPath: $.gatePassDetails.gatePassReference
             - jsonPath: $.gatePassDetails.shopkeeper
-            - jsonPath: $.gatePassDetails.helkari
-            - jsonPath: $.gatePassDetails.createdDate
-            - jsonPath: $.gatePassDetails.lastModifiedDate
-            - jsonPath: $.gatePassDetails.createdBy
-            - jsonPath: $.gatePassDetails.lastModifiedBy
+            - jsonPath: $.gatePassDetails.auditDetails.createdTime
+            - jsonPath: $.gatePassDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.gatePassDetails.auditDetails.createdBy
+            - jsonPath: $.gatePassDetails.auditDetails.lastModifiedBy
 
 
 
@@ -295,6 +292,30 @@ serviceMaps:
             - jsonPath: $.units       
     
         
+    - version: 1.0
+      description: Persists Deonar Slaughtered Animals Records and associated data
+      fromTopic: topic_deonar_slaughtered_animals
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO public.eg_deonar_slaughtered_animals 
+            (arrivalid, ddreference, shopkeepername, licencenumber, animaltypeid, "token", slaughtering, slaughterunit, slaughtertype, createdon, modifiedon, createdby, modifiedby)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.slaughterDetails.arrivalId                  
+            - jsonPath: $.slaughterDetails.ddReference                
+            - jsonPath: $.slaughterDetails.shopkeeperName             
+            - jsonPath: $.slaughterDetails.licenceNumber              
+            - jsonPath: $.slaughterDetails.animalTypeId               
+            - jsonPath: $.slaughterDetails.token                      
+            - jsonPath: $.slaughterDetails.slaughtering               
+            - jsonPath: $.slaughterDetails.slaughterUnit              
+            - jsonPath: $.slaughterDetails.slaughterType              
+            - jsonPath: $.audit.createdTime          
+            - jsonPath: $.audit.lastModifiedTime     
+            - jsonPath: $.audit.createdBy            
+            - jsonPath: $.audit.lastModifiedBy       
 
 
 
