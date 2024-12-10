@@ -54,7 +54,7 @@ serviceMaps:
 
     - version: 1.0
       description: Persists Deonar Inspection details
-      fromTopic: save-inspection-details
+      fromTopic: save-inspection-detailsold
       isTransaction: true
       queryMaps:
         - query: |
@@ -109,6 +109,63 @@ serviceMaps:
             - jsonPath: $.Inspection.arrivalId
 
 
+
+    - version: 1.0
+      description: Persists Deonar Inspection details
+      fromTopic: save-inspection-details
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO eg_deonar_inspection
+            (inspectiondate, inspectiontime, arrivalid, employeeid, createdat, updatedat, createdby, updatedby, inspectionunitid, inspectiontype)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (arrivalid,inspectiontype)
+            DO UPDATE SET 
+              inspectiontime = EXCLUDED.inspectiontime,
+              arrivalid = EXCLUDED.arrivalid,
+              employeeid = EXCLUDED.employeeid,
+              updatedat = EXCLUDED.updatedat,
+              updatedby = EXCLUDED.updatedby,
+              inspectionunitid = EXCLUDED.inspectionunitid,
+              inspectiontype = EXCLUDED.inspectiontype
+            RETURNING id;
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Inspection.inspectionDate
+            - jsonPath: $.Inspection.inspectionTime
+            - jsonPath: $.Inspection.arrivalId
+            - jsonPath: $.Inspection.employeeId
+            - jsonPath: $.Inspection.createdAt
+            - jsonPath: $.Inspection.updatedAt
+            - jsonPath: $.Inspection.createdBy
+            - jsonPath: $.Inspection.updatedBy
+            - jsonPath: $.Inspection.inspectionUnitId
+            - jsonPath: $.Inspection.inspectionType
+
+        - query: |
+     
+            INSERT INTO eg_deonar_inspection_detail
+              (inspectionid,report,"resultremark",other,opinion,tokenno, animaltypeid,createdat, updatedat, createdby, updatedby,quarters)
+            values(
+              (select id from eg_deonar_inspection where arrivalid = ? and inspectiontype = ? ), ?::jsonb,?,?,?,?,?,?,?,?,?,case when ? = 4 then  case when ? = 3 then 4 else 1 end else null end )
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Inspection.arrivalId
+            - jsonPath: $.Inspection.inspectionType
+            - jsonPath: $.InspectionDetails.jsonStringReport
+            - jsonPath: $.InspectionDetails.resultremark
+            - jsonPath: $.InspectionDetails.other
+            - jsonPath: $.InspectionDetails.opinion
+            - jsonPath: $.InspectionDetails.animalDetail.token
+            - jsonPath: $.InspectionDetails.animalDetail.animalTypeId
+            - jsonPath: $.Inspection.createdAt
+            - jsonPath: $.Inspection.updatedAt 
+            - jsonPath: $.Inspection.createdBy
+            - jsonPath: $.Inspection.updatedBy
+            - jsonPath: $.Inspection.inspectionType
+            - jsonPath: $.InspectionDetails.animalDetail.animalTypeId
+
+
     - version: 1.0
       description: Persists Deonar Inspection details
       fromTopic: update-inspection-details
@@ -122,7 +179,7 @@ serviceMaps:
           basePath: $
           jsonMaps:
             - jsonPath: $.InspectionDetails.report
-            - jsonPath: $.InspectionDetails.remark
+            - jsonPath: $.InspectionDetails.resultremark
             - jsonPath: $.InspectionDetails.opinion
             - jsonPath: $.InspectionDetails.other
             - jsonPath: $.Inspection.updatedAt
