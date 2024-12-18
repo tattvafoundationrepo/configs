@@ -180,7 +180,7 @@ serviceMaps:
           jsonMaps:
             - jsonPath: $.InspectionDetails.report
             - jsonPath: $.InspectionDetails.resultremark
-            - jsonPath: $.InspectionDetails.opinion
+            - jsonPath: $.InspectionDetails.opinionId
             - jsonPath: $.InspectionDetails.other
             - jsonPath: $.Inspection.updatedAt
             - jsonPath: $.Inspection.updatedBy
