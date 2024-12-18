@@ -155,7 +155,7 @@ serviceMaps:
             - jsonPath: $.InspectionDetails.jsonStringReport
             - jsonPath: $.InspectionDetails.resultremark
             - jsonPath: $.InspectionDetails.other
-            - jsonPath: $.InspectionDetails.opinion
+            - jsonPath: $.InspectionDetails.opinionId
             - jsonPath: $.InspectionDetails.animalDetail.token
             - jsonPath: $.InspectionDetails.animalDetail.animalTypeId
             - jsonPath: $.Inspection.createdAt
