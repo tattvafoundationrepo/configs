@@ -242,6 +242,97 @@ serviceMaps:
             - jsonPath: $.assignments.*.ddReference
 
 
+
+
+    - version: 1.0
+      description: Persists stakeholder and related mappings in the database
+      fromTopic: save-stakeholder-data
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_deonar_licence ( licencenumber, registrationnumber, validfromdate, validtodate, 
+                createdat, updatedat, createdby, updatedby
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Stakeholders.licenceNumber
+            - jsonPath: $.Stakeholders.registrationNumber
+            - jsonPath: $.Stakeholders.validfromdate
+            - jsonPath: $.Stakeholders.validtodate
+            - jsonPath: $.Stakeholders.createdAt
+            - jsonPath: $.Stakeholders.updatedAt
+            - jsonPath: $.Stakeholders.createdBy
+            - jsonPath: $.Stakeholders.updatedBy
+        - query: >
+            INSERT INTO public.eg_deonar_stakeholder ( stakeholdername, address1, address2, pincode, mobilenumber, contactnumber, email, createdat, updatedat, createdby, updatedby
+            ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Stakeholders.stakeholderName
+            - jsonPath: $.Stakeholders.address1
+            - jsonPath: $.Stakeholders.address2
+            - jsonPath: $.Stakeholders.pincode
+            - jsonPath: $.Stakeholders.mobileNumber
+            - jsonPath: $.Stakeholders.contactNumber
+            - jsonPath: $.Stakeholders.email
+            - jsonPath: $.Stakeholders.createdAt
+            - jsonPath: $.Stakeholders.updatedAt
+            - jsonPath: $.Stakeholders.createdBy
+            - jsonPath: $.Stakeholders.updatedBy
+        - query: >
+            INSERT INTO public.eg_deonar_stakeholder_animal_type_mapping (
+                stakeholdertypeid, animaltypeid, createdat, updatedat, createdby, updatedby
+            ) VALUES ((SELECT id FROM public.eg_deonar_stakeholder WHERE mobilenumber = ? LIMIT 1),
+             ?, ?, ?, ?, ?
+             )
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Stakeholders.mobileNumber
+            - jsonPath: $.Stakeholders.animalTypeId
+            - jsonPath: $.Stakeholders.createdAt
+            - jsonPath: $.Stakeholders.updatedAt
+            - jsonPath: $.Stakeholders.createdBy
+            - jsonPath: $.Stakeholders.updatedBy
+        - query: >
+            INSERT INTO public.eg_deonar_stakeholder_licence_mapping (
+                licenceid, stakeholderid, createdat, updatedat, createdby, updatedby
+            ) VALUES (
+                (SELECT id FROM public.eg_deonar_licence WHERE licencenumber = ? LIMIT 1),
+                (SELECT id FROM public.eg_deonar_stakeholder WHERE mobilenumber = ? LIMIT 1),
+                 ?, ?, ?, ?
+            )
+            ON CONFLICT (stakeholderid)
+            DO UPDATE SET
+                createdat = EXCLUDED.createdAt,
+                updatedat = EXCLUDED.updatedAt,
+                createdby = EXCLUDED.createdBy,
+                updatedby = EXCLUDED.updatedBy;
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Stakeholders.licenceNumber   
+            - jsonPath: $.Stakeholders.mobileNumber              
+            - jsonPath: $.Stakeholders.createdAt       
+            - jsonPath: $.Stakeholders.updatedAt      
+            - jsonPath: $.Stakeholders.createdBy       
+            - jsonPath: $.Stakeholders.updatedBy       
+        - query: >
+            INSERT INTO public.eg_deonar_stakeholder_type_mapping (
+                stakeholdertypeid, stakeholderid, createdat, updatedat, createdby, updatedby
+            ) VALUES (?, 
+            (SELECT id FROM public.eg_deonar_stakeholder WHERE mobilenumber = ? LIMIT 1),
+             ?, ?, ?, ?
+             )
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Stakeholders.stakeholderTypeId
+            - jsonPath: $.Stakeholders.mobileNumber
+            - jsonPath: $.Stakeholders.createdAt
+            - jsonPath: $.Stakeholders.updatedAt
+            - jsonPath: $.Stakeholders.createdBy
+            - jsonPath: $.Stakeholders.updatedBy
+
+
+
     - version: 1.0
       description: Persists animal removal details in the table
       fromTopic: save-animal-removal
@@ -283,6 +374,32 @@ serviceMaps:
               - jsonPath: $.vehicleParking.vehicleNumber
               - jsonPath: $.vehicleParking.parkingTime
               - jsonPath: $.vehicleParking.departureTime
+              - jsonPath: $.createdAt
+              - jsonPath: $.updatedAt
+              - jsonPath: $.createdBy
+              - jsonPath: $.updatedBy
+
+
+    - version: 1.0
+      description: Persists Vehicle Washing details in the table
+      fromTopic: save-vehicle-washing
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_deonar_vehicle_washing (
+            vehicletype, vehiclenumber, washingtime, departuretime, createdat, updatedat, createdby, updatedby
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (vehiclenumber, washingtime) 
+            DO UPDATE SET 
+            departuretime = EXCLUDED.departuretime,
+            updatedat = EXCLUDED.updatedat,
+            updatedby = EXCLUDED.updatedby;
+          basePath: $
+          jsonMaps: 
+              - jsonPath: $.vehicleWashing.vehicleType
+              - jsonPath: $.vehicleWashing.vehicleNumber
+              - jsonPath: $.vehicleWashing.washingTime
+              - jsonPath: $.vehicleWashing.departureTime
               - jsonPath: $.createdAt
               - jsonPath: $.updatedAt
               - jsonPath: $.createdBy
@@ -369,24 +486,18 @@ serviceMaps:
       queryMaps:
         - query: |
             INSERT INTO public.eg_deonar_slaughtered_animals 
-            (arrivalid, ddreference, shopkeepername, licencenumber, animaltypeid, "token", slaughtering, slaughterunit, slaughtertype, createdon, modifiedon, createdby, modifiedby)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (arrivalid, animaltypeid, "token",slaughterunit,slaughtertype, createdon, modifiedon, createdby, modifiedby)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
           basePath: $
           jsonMaps:
-            - jsonPath: $.slaughterDetails.arrivalId                  
-            - jsonPath: $.slaughterDetails.ddReference                
-            - jsonPath: $.slaughterDetails.shopkeeperName             
-            - jsonPath: $.slaughterDetails.licenceNumber              
-            - jsonPath: $.slaughterDetails.animalTypeId               
-            - jsonPath: $.slaughterDetails.token                      
-            - jsonPath: $.slaughterDetails.slaughtering               
-            - jsonPath: $.slaughterDetails.slaughterUnit              
-            - jsonPath: $.slaughterDetails.slaughterType              
+            - jsonPath: $.slaughterDetails.arrivalId                                              
+            - jsonPath: $.slaughterDetails.animalTypeId  
+            - jsonPath: $.slaughterDetails.token    
+            - jsonPath: $.slaughterDetails.slaughterUnit 
+            - jsonPath: $.slaughterDetails.slaughterType                                           
             - jsonPath: $.audit.createdTime          
             - jsonPath: $.audit.lastModifiedTime     
             - jsonPath: $.audit.createdBy            
             - jsonPath: $.audit.lastModifiedBy       
 
 
-
-        
