@@ -190,7 +190,20 @@ serviceMaps:
             - jsonPath: $.InspectionDetails.animalTypeId
             - jsonPath: $.InspectionDetails.animalTokenNumber
     
-  
+    - version: 1.0
+      description: Persists Deonar Inspection details
+      fromTopic: update-Submit-flag
+      isTransaction: true
+      queryMaps:
+        - query: |
+            UPDATE eg_deonar_inspection SET  recordtype = true
+            where arrivalid = ? and inspectiontype = ? 
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.entryUnitId
+            - jsonPath: $.inspectionType
+
+    
 
 
 
