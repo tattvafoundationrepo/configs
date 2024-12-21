@@ -119,15 +119,6 @@ serviceMaps:
             INSERT INTO eg_deonar_inspection
             (inspectiondate, inspectiontime, arrivalid, employeeid, createdat, updatedat, createdby, updatedby, inspectionunitid, inspectiontype)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (arrivalid,inspectiontype)
-            DO UPDATE SET 
-              inspectiontime = EXCLUDED.inspectiontime,
-              arrivalid = EXCLUDED.arrivalid,
-              employeeid = EXCLUDED.employeeid,
-              updatedat = EXCLUDED.updatedat,
-              updatedby = EXCLUDED.updatedby,
-              inspectionunitid = EXCLUDED.inspectionunitid,
-              inspectiontype = EXCLUDED.inspectiontype
             RETURNING id;
           basePath: $
           jsonMaps:
@@ -196,10 +187,11 @@ serviceMaps:
       isTransaction: true
       queryMaps:
         - query: |
-            UPDATE eg_deonar_inspection SET  recordtype = true
+            UPDATE eg_deonar_inspection SET  recordtype = true, inspection_against = ?
             where arrivalid = ? and inspectiontype = ? 
           basePath: $
           jsonMaps:
+            - jsonPath: $.inspectionAgainst
             - jsonPath: $.entryUnitId
             - jsonPath: $.inspectionType
 
@@ -248,6 +240,59 @@ serviceMaps:
       description: Persists stakeholder and related mappings in the database
       fromTopic: save-stakeholder-data
       isTransaction: true
+      queryMaps:   
+        - query: >
+            INSERT INTO public.eg_deonar_stakeholder ( stakeholdername, address1, address2, pincode, mobilenumber, contactnumber, email, createdat, updatedat, createdby, updatedby
+            ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             ON CONFLICT (mobilenumber) DO UPDATE SET
+                stakeholdername = EXCLUDED.stakeholdername,
+                address1 = EXCLUDED.address1,
+                address2 = EXCLUDED.address2,
+                pincode = EXCLUDED.pincode,
+                contactnumber = EXCLUDED.contactnumber,
+                email = EXCLUDED.email,
+                updatedat = EXCLUDED.updatedat,
+                updatedby = EXCLUDED.updatedby;
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Stakeholders.stakeholderName
+            - jsonPath: $.Stakeholders.address1
+            - jsonPath: $.Stakeholders.address2
+            - jsonPath: $.Stakeholders.pincode
+            - jsonPath: $.Stakeholders.mobileNumber
+            - jsonPath: $.Stakeholders.contactNumber
+            - jsonPath: $.Stakeholders.email
+            - jsonPath: $.Stakeholders.createdAt
+            - jsonPath: $.Stakeholders.updatedAt
+            - jsonPath: $.Stakeholders.createdBy
+            - jsonPath: $.Stakeholders.updatedBy    
+        - query: >
+            INSERT INTO public.eg_deonar_stakeholder_type_mapping (
+                stakeholdertypeid, stakeholderid, createdat, updatedat, createdby, updatedby
+            ) VALUES (?, 
+            (SELECT id FROM public.eg_deonar_stakeholder WHERE mobilenumber = ? LIMIT 1),
+             ?, ?, ?, ?
+             )
+             ON CONFLICT (stakeholderid, stakeholdertypeid) 
+             DO UPDATE SET
+                createdat = EXCLUDED.createdat,
+                updatedat = EXCLUDED.updatedat,
+                createdby = EXCLUDED.createdby,
+                updatedby = EXCLUDED.updatedby;
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.Stakeholders.stakeholderTypeId
+            - jsonPath: $.Stakeholders.mobileNumber
+            - jsonPath: $.Stakeholders.createdAt
+            - jsonPath: $.Stakeholders.updatedAt
+            - jsonPath: $.Stakeholders.createdBy
+            - jsonPath: $.Stakeholders.updatedBy
+
+
+    - version: 1.0
+      description: Persists licence and related mappings in the database
+      fromTopic: save-licencenumber-data
+      isTransaction: true
       queryMaps:
         - query: >
             INSERT INTO public.eg_deonar_licence ( licencenumber, registrationnumber, validfromdate, validtodate, 
@@ -264,36 +309,6 @@ serviceMaps:
             - jsonPath: $.Stakeholders.createdBy
             - jsonPath: $.Stakeholders.updatedBy
         - query: >
-            INSERT INTO public.eg_deonar_stakeholder ( stakeholdername, address1, address2, pincode, mobilenumber, contactnumber, email, createdat, updatedat, createdby, updatedby
-            ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          basePath: $
-          jsonMaps:
-            - jsonPath: $.Stakeholders.stakeholderName
-            - jsonPath: $.Stakeholders.address1
-            - jsonPath: $.Stakeholders.address2
-            - jsonPath: $.Stakeholders.pincode
-            - jsonPath: $.Stakeholders.mobileNumber
-            - jsonPath: $.Stakeholders.contactNumber
-            - jsonPath: $.Stakeholders.email
-            - jsonPath: $.Stakeholders.createdAt
-            - jsonPath: $.Stakeholders.updatedAt
-            - jsonPath: $.Stakeholders.createdBy
-            - jsonPath: $.Stakeholders.updatedBy
-        - query: >
-            INSERT INTO public.eg_deonar_stakeholder_animal_type_mapping (
-                stakeholdertypeid, animaltypeid, createdat, updatedat, createdby, updatedby
-            ) VALUES ((SELECT id FROM public.eg_deonar_stakeholder WHERE mobilenumber = ? LIMIT 1),
-             ?, ?, ?, ?, ?
-             )
-          basePath: $
-          jsonMaps:
-            - jsonPath: $.Stakeholders.mobileNumber
-            - jsonPath: $.Stakeholders.animalTypeId
-            - jsonPath: $.Stakeholders.createdAt
-            - jsonPath: $.Stakeholders.updatedAt
-            - jsonPath: $.Stakeholders.createdBy
-            - jsonPath: $.Stakeholders.updatedBy
-        - query: >
             INSERT INTO public.eg_deonar_stakeholder_licence_mapping (
                 licenceid, stakeholderid, createdat, updatedat, createdby, updatedby
             ) VALUES (
@@ -301,7 +316,7 @@ serviceMaps:
                 (SELECT id FROM public.eg_deonar_stakeholder WHERE mobilenumber = ? LIMIT 1),
                  ?, ?, ?, ?
             )
-            ON CONFLICT (stakeholderid)
+            ON CONFLICT (licenceid)
             DO UPDATE SET
                 createdat = EXCLUDED.createdAt,
                 updatedat = EXCLUDED.updatedAt,
@@ -314,18 +329,25 @@ serviceMaps:
             - jsonPath: $.Stakeholders.createdAt       
             - jsonPath: $.Stakeholders.updatedAt      
             - jsonPath: $.Stakeholders.createdBy       
-            - jsonPath: $.Stakeholders.updatedBy       
+            - jsonPath: $.Stakeholders.updatedBy
+           
+
+
+    - version: 1.0
+      description: Persists animaltype details in the table
+      fromTopic: save-animaltype-data
+      isTransaction: true
+      queryMaps:
         - query: >
-            INSERT INTO public.eg_deonar_stakeholder_type_mapping (
-                stakeholdertypeid, stakeholderid, createdat, updatedat, createdby, updatedby
-            ) VALUES (?, 
-            (SELECT id FROM public.eg_deonar_stakeholder WHERE mobilenumber = ? LIMIT 1),
-             ?, ?, ?, ?
+            INSERT INTO public.eg_deonar_stakeholder_animal_type_mapping (
+                stakeholdertypeid, animaltypeid, createdat, updatedat, createdby, updatedby
+            ) VALUES ((SELECT id FROM public.eg_deonar_stakeholder WHERE mobilenumber = ? LIMIT 1),
+             ?, ?, ?, ?, ?
              )
           basePath: $
           jsonMaps:
-            - jsonPath: $.Stakeholders.stakeholderTypeId
             - jsonPath: $.Stakeholders.mobileNumber
+            - jsonPath: $.Stakeholders.animalTypeId
             - jsonPath: $.Stakeholders.createdAt
             - jsonPath: $.Stakeholders.updatedAt
             - jsonPath: $.Stakeholders.createdBy
