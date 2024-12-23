@@ -117,8 +117,15 @@ serviceMaps:
       queryMaps:
         - query: |
             INSERT INTO eg_deonar_inspection
-            (inspectiondate, inspectiontime, arrivalid, employeeid, createdat, updatedat, createdby, updatedby, inspectionunitid, inspectiontype)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (inspectiondate, inspectiontime, arrivalid, employeeid, createdat, updatedat, createdby, updatedby, inspectionunitid, inspectiontype,inspection_against)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (arrivalid,inspectiontype,inspection_against)
+            DO UPDATE SET 
+              inspectiontime = EXCLUDED.inspectiontime,
+              employeeid = EXCLUDED.employeeid,
+              updatedat = EXCLUDED.updatedat,
+              updatedby = EXCLUDED.updatedby,
+              inspectionunitid = EXCLUDED.inspectionunitid
             RETURNING id;
           basePath: $
           jsonMaps:
@@ -132,13 +139,14 @@ serviceMaps:
             - jsonPath: $.Inspection.updatedBy
             - jsonPath: $.Inspection.inspectionUnitId
             - jsonPath: $.Inspection.inspectionType
+            - jsonPath: $.Inspection.inspectionAgainst
 
         - query: |
      
             INSERT INTO eg_deonar_inspection_detail
               (inspectionid,report,"resultremark",other,opinion,tokenno, animaltypeid,createdat, updatedat, createdby, updatedby,quarters)
             values(
-              (select id from eg_deonar_inspection where arrivalid = ? and inspectiontype = ? ), ?::jsonb,?,?,?,?,?,?,?,?,?,case when ? = 4 then  case when ? = 3 then 4 else 1 end else null end )
+              (select id from eg_deonar_inspection where arrivalid = ? and inspectiontype = ? LIMIT 1), ?::jsonb,?,?,?,?,?,?,?,?,?,case when ? = 4 then  case when ? = 3 then 4 else 1 end else null end )
           basePath: $
           jsonMaps:
             - jsonPath: $.Inspection.arrivalId
@@ -165,7 +173,7 @@ serviceMaps:
         - query: |
             UPDATE eg_deonar_inspection_detail SET  
               report=?::jsonb, resultremark=?, opinion=? , other = ? , updatedat=?,  updatedby=?, quarters=?
-            WHERE inspectionid=( select id from eg_deonar_inspection where arrivalid = ? and inspectiontype = ?) 
+            WHERE inspectionid=( select id from eg_deonar_inspection where arrivalid = ? and inspectiontype = ? and inspection_against = ?) 
             and animaltypeid = ? and tokenno = ?
           basePath: $
           jsonMaps:
@@ -178,6 +186,7 @@ serviceMaps:
             - jsonPath: $.InspectionDetails.animalQuarters
             - jsonPath: $.InspectionDetails.entryUnitId
             - jsonPath: $.InspectionDetails.inspectionId
+            - jsonPath: $.InspectionDetails.inspectionAgainst
             - jsonPath: $.InspectionDetails.animalTypeId
             - jsonPath: $.InspectionDetails.animalTokenNumber
     
