@@ -1006,7 +1006,7 @@ serviceMaps:
             - jsonPath: $.ApplicationSnapshot.updatedAddress.locality
             - jsonPath: $.ApplicationSnapshot.updatedAddress.district
             - jsonPath: $.ApplicationSnapshot.updatedAddress.state
-            - jsonPath: $.ApplicationSnapshot.updatedAddress.pinCode.value
+            - jsonPath: $.ApplicationSnapshot.updatedAddress.pincode
 
             - jsonPath: $.ApplicationSnapshot.AadharUser.aadharRef
             - jsonPath: $.ApplicationSnapshot.AadharUser.father
