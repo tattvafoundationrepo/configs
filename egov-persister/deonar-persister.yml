@@ -532,3 +532,27 @@ serviceMaps:
             - jsonPath: $.audit.lastModifiedBy       
 
 
+    - version: 1.0
+      description: Persists slaughter booking details in the table
+      fromTopic: topic_deonar_saveslaughter_booking
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_deonar_booked_for_slaughter(
+              arrivalid, ddreference, animaltypeid, token, slaughterunitid, unitshiftid, 
+              slaughterdate, createdat, updatedat, createdby, updatedby , by_bmc_emp
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: $.bookingDetails.*
+          jsonMaps:
+            - jsonPath: $.bookingDetails.*.arrivalId
+            - jsonPath: $.bookingDetails.*.ddReference
+            - jsonPath: $.bookingDetails.*.animalTypeId
+            - jsonPath: $.bookingDetails.*.token
+            - jsonPath: $.bookingDetails.*.slaughterUnitId
+            - jsonPath: $.bookingDetails.*.unitShiftId
+            - jsonPath: $.bookingDetails.*.slaughterDate
+            - jsonPath: $.auditDetails.createdTime
+            - jsonPath: $.auditDetails.lastModifiedTime
+            - jsonPath: $.auditDetails.createdBy
+            - jsonPath: $.auditDetails.lastModifiedBy
+            - jsonPath: $.bookingDetails.*.slaughterByBmcEmployee
