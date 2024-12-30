@@ -558,3 +558,49 @@ serviceMaps:
             - jsonPath: $.auditDetails.createdBy
             - jsonPath: $.auditDetails.lastModifiedBy
             - jsonPath: $.bookingDetails.*.slaughterByBmcEmployee
+
+
+    - version: 1.0
+      description: Upserts animal collection fee details into the table
+      fromTopic: save-collectionfee-data
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_deonar_animal_fee (
+              animalid, feetype, feevalue
+            )
+            VALUES (?, ?, ?)
+            ON CONFLICT (animalid, feetype)
+            DO UPDATE SET
+                feevalue = EXCLUDED.feevalue;
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.CollectionFee.animalid
+            - jsonPath: $.CollectionFee.feetype
+            - jsonPath: $.CollectionFee.feevalue
+
+
+    - version: 1.0
+      description: Upserts animal slaughter unit fee details into the table
+      fromTopic: save-slaughterunitfee-data
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_deonar_slaughter_unit_charges (
+              slaughterunitshiftid, charges, animaltypeid, createdat, updatedat, createdby, updatedby, bybmcemployee
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (slaughterunitshiftid, animaltypeid, bybmcemployee)
+            DO UPDATE SET
+            charges = EXCLUDED.charges,
+            updatedat = EXCLUDED.updatedat;
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.SlaughterUnitFee.slaughterunitshiftid
+            - jsonPath: $.SlaughterUnitFee.charges
+            - jsonPath: $.SlaughterUnitFee.animaltypeid
+            - jsonPath: $.SlaughterUnitFee.createdat
+            - jsonPath: $.SlaughterUnitFee.updatedat
+            - jsonPath: $.SlaughterUnitFee.createdby
+            - jsonPath: $.SlaughterUnitFee.updatedby
+            - jsonPath: $.SlaughterUnitFee.bybmc
