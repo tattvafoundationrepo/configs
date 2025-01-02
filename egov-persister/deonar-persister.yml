@@ -313,8 +313,8 @@ serviceMaps:
           jsonMaps:
             - jsonPath: $.Stakeholders.licenceNumber
             - jsonPath: $.Stakeholders.registrationNumber
-            - jsonPath: $.Stakeholders.validfromdate
-            - jsonPath: $.Stakeholders.validtodate
+            - jsonPath: $.Stakeholders.validFrom
+            - jsonPath: $.Stakeholders.validTo
             - jsonPath: $.Stakeholders.createdAt
             - jsonPath: $.Stakeholders.updatedAt
             - jsonPath: $.Stakeholders.createdBy
@@ -460,6 +460,31 @@ serviceMaps:
             - jsonPath: $.audit.lastModifiedTime
             - jsonPath: $.recieptno
             - jsonPath: $.feetype
+
+
+    - version: 1.0
+      description: Persists Deonar Fee Payment Details Records and associated data
+      fromTopic: topic_deonar_savefeedetails
+      isTransaction: true
+      queryMaps:
+        - query: |
+            INSERT INTO eg_deonar_fee_paid_details
+            (recieptno, arrivalid, animal_details, createdby, modifiedby, createdtime, modofiedtime,paid_by_stakeholderid)
+            VALUES (?, ?,(select animal_details from my_test where arrivalid = ? and stakeholderid = ?) , ?, ?, ?, ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.recieptno
+            - jsonPath: $.arrivalid
+            - jsonPath: $.arrivalid
+            - jsonPath: $.stakeholderid
+            - jsonPath: $.animal_details
+            - jsonPath: $.audit.createdBy
+            - jsonPath: $.audit.lastModifiedBy
+            - jsonPath: $.audit.createdTime
+            - jsonPath: $.audit.lastModifiedTime
+            - jsonPath: $.stakeholderid
+
+        
 
 
     - version: 1.0
