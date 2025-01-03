@@ -427,12 +427,12 @@ serviceMaps:
             departuretime = EXCLUDED.departuretime,
             updatedat = EXCLUDED.updatedat,
             updatedby = EXCLUDED.updatedby;
-          basePath: $
+          basePath: $.vehicleWashing.*
           jsonMaps: 
-              - jsonPath: $.vehicleWashing.vehicleType
-              - jsonPath: $.vehicleWashing.vehicleNumber
-              - jsonPath: $.vehicleWashing.washingTime
-              - jsonPath: $.vehicleWashing.departureTime
+              - jsonPath: $.vehicleWashing.*.vehicleType
+              - jsonPath: $.vehicleWashing.*.vehicleNumber
+              - jsonPath: $.vehicleWashing.*.washingTime
+              - jsonPath: $.vehicleWashing.*.departureTime
               - jsonPath: $.createdAt
               - jsonPath: $.updatedAt
               - jsonPath: $.createdBy
