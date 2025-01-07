@@ -375,6 +375,11 @@ serviceMaps:
             INSERT INTO public.eg_deonar_animal_removal (
               arrivalid, animaltypeid, tokennum, removalid, createdat, updatedat, createdby, updatedby
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (arrivalid,animaltypeid,tokennum)
+            DO UPDATE SET
+                removalid = EXCLUDED.removalid,
+                updatedat = EXCLUDED.updatedat,
+                updatedby = EXCLUDED.updatedby;
           basePath: $.animalAssignments.*
           jsonMaps: 
             - jsonPath: $.arrivalId
@@ -469,20 +474,20 @@ serviceMaps:
       queryMaps:
         - query: |
             INSERT INTO eg_deonar_fee_paid_details
-            (recieptno, arrivalid, animal_details, createdby, modifiedby, createdtime, modofiedtime,paid_by_stakeholderid)
-            VALUES (?, ?,(select animal_details from my_test where arrivalid = ? and stakeholderid = ?) , ?, ?, ?, ?)
+            (recieptno, arrivalid, animaldetails, createdby, modifiedby, createdtime, modofiedtime,paidbystakeholderid,licencenumber)
+            VALUES (?, ?,(select animal_details from eg_deonar_collection_stabling_fee where arrivalid = ? and licencenumber = ?) , ?, ?, ?, ?, ?, ?)
           basePath: $
           jsonMaps:
             - jsonPath: $.recieptno
-            - jsonPath: $.arrivalid
-            - jsonPath: $.arrivalid
-            - jsonPath: $.stakeholderid
-            - jsonPath: $.animal_details
+            - jsonPath: $.uuid
+            - jsonPath: $.uuid
+            - jsonPath: $.licenceNumber
             - jsonPath: $.audit.createdBy
             - jsonPath: $.audit.lastModifiedBy
             - jsonPath: $.audit.createdTime
             - jsonPath: $.audit.lastModifiedTime
-            - jsonPath: $.stakeholderid
+            - jsonPath: $.stakeholderId
+            - jsonPath: $.licenceNumber
 
         
 
