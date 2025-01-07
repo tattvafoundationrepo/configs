@@ -475,13 +475,12 @@ serviceMaps:
         - query: |
             INSERT INTO eg_deonar_fee_paid_details
             (recieptno, arrivalid, animaldetails, createdby, modifiedby, createdtime, modofiedtime,paidbystakeholderid,licencenumber)
-            VALUES (?, ?,(select animal_details from eg_deonar_collection_stabling_fee where arrivalid = ? and licencenumber = ?) , ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?,?::jsonb, ?, ?, ?, ?, ?, ?)
           basePath: $
           jsonMaps:
             - jsonPath: $.recieptno
             - jsonPath: $.uuid
-            - jsonPath: $.uuid
-            - jsonPath: $.licenceNumber
+            - jsonPath: $.animalDetail
             - jsonPath: $.audit.createdBy
             - jsonPath: $.audit.lastModifiedBy
             - jsonPath: $.audit.createdTime
