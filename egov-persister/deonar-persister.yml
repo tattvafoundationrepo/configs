@@ -144,11 +144,23 @@ serviceMaps:
             - jsonPath: $.Inspection.inspectionAgainst
 
         - query: |
-     
             INSERT INTO eg_deonar_inspection_detail
-              (inspectionid,report,"resultremark",other,opinion,tokenno, animaltypeid,createdat, updatedat, createdby, updatedby,quarters)
-            values(
-              (select id from eg_deonar_inspection where arrivalid = ? and inspectiontype = ? LIMIT 1), ?::jsonb,?,?,?,?,?,?,?,?,?,case when ? = 4 then  case when ? = 3 then 4 else 1 end else null end )
+            (inspectionid, report, "resultremark", other, opinion, tokenno, animaltypeid, createdat, updatedat, createdby, updatedby, quarters)
+            VALUES (
+            (SELECT id 
+              FROM eg_deonar_inspection 
+              WHERE arrivalid = ? AND inspectiontype = ? 
+              LIMIT 1), 
+            ?::jsonb, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+            CASE 
+              WHEN ?::INTEGER = 4 THEN 
+                CASE 
+                  WHEN ?::INTEGER = 3 THEN 4 
+                  ELSE 1 
+                END 
+              ELSE NULL 
+             END
+            )
           basePath: $
           jsonMaps:
             - jsonPath: $.Inspection.arrivalId
@@ -165,6 +177,7 @@ serviceMaps:
             - jsonPath: $.Inspection.updatedBy
             - jsonPath: $.Inspection.inspectionType
             - jsonPath: $.InspectionDetails.animalDetail.animalTypeId
+
 
 
     - version: 1.0
