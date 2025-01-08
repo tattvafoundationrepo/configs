@@ -572,14 +572,14 @@ serviceMaps:
             INSERT INTO eg_deonar_booked_for_slaughter(
               arrivalid, ddreference, animaltypeid, token, slaughterunitid, unitshiftid, 
               slaughterdate, createdat, updatedat, createdby, updatedby , by_bmc_emp
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ( select slaughterunitid from eg_deonar_slaughter_unit_shift where id = ? ), ?, ?, ?, ?, ?, ?, ?)
           basePath: $.bookingDetails.*
           jsonMaps:
             - jsonPath: $.bookingDetails.*.arrivalId
             - jsonPath: $.bookingDetails.*.ddReference
             - jsonPath: $.bookingDetails.*.animalTypeId
             - jsonPath: $.bookingDetails.*.token
-            - jsonPath: $.bookingDetails.*.slaughterUnitId
+            - jsonPath: $.bookingDetails.*.unitShiftId
             - jsonPath: $.bookingDetails.*.unitShiftId
             - jsonPath: $.bookingDetails.*.slaughterDate
             - jsonPath: $.auditDetails.createdTime
