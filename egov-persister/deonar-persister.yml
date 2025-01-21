@@ -646,3 +646,80 @@ serviceMaps:
             - jsonPath: $.SlaughterUnitFee.createdby
             - jsonPath: $.SlaughterUnitFee.updatedby
             - jsonPath: $.SlaughterUnitFee.bybmc
+
+
+
+
+    - version: 1.0
+      description: Persists citizen gate pass details in the table
+      fromTopic: save-citizen-gate-pass-details
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO public.eg_deonar_citizen_gatepass_details (
+              ddreference, arrivalid, citizenname, 
+              date, time, animaldetails, gatepassreference, 
+              createdby, modifiedby, createdtime, modifiedtime,
+              placeofslaughter, dateofslaughter
+            ) 
+            VALUES (?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.CitizenGatePassSaveDetails.DDReference
+            - jsonPath: $.CitizenGatePassSaveDetails.ArrivalId
+            - jsonPath: $.CitizenGatePassSaveDetails.CitizenName
+            - jsonPath: $.CitizenGatePassSaveDetails.Date
+            - jsonPath: $.CitizenGatePassSaveDetails.Time
+            - jsonPath: $.CitizenGatePassSaveDetails.jsonAnimalDetails
+            - jsonPath: $.CitizenGatePassSaveDetails.gatePassReference
+            - jsonPath: $.CitizenGatePassSaveDetails.auditDetails.createdBy
+            - jsonPath: $.CitizenGatePassSaveDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.CitizenGatePassSaveDetails.auditDetails.createdTime
+            - jsonPath: $.CitizenGatePassSaveDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.CitizenGatePassSaveDetails.PlaceOfSlaughter
+            - jsonPath: $.CitizenGatePassSaveDetails.DateOfSlaughter
+
+
+
+
+    - version: 1.0
+      description: Persists deonar arrival updated details in the table
+      fromTopic: save-arrival-updated-details
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_deonar_animal_at_arrival 
+            (arrivalId, animalTypeId, token, createdAt, updatedAt, createdBy, updatedBy)
+            VALUES ((SELECT id FROM eg_deonar_arrival WHERE arrivalId = ?), ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (arrivalId, animalTypeId,token)
+            DO UPDATE SET
+              updatedAt = EXCLUDED.updatedAt,
+              updatedBy = EXCLUDED.updatedBy;
+          basePath: $.addedC.*
+          jsonMaps:
+            - jsonPath: $.ArrivalUUID
+            - jsonPath: $.AnimalDetails.animalTypeId
+            - jsonPath: $.addedC.*.addToken
+            - jsonPath: $.AnimalDetails.createdAt
+            - jsonPath: $.AnimalDetails.updatedAt
+            - jsonPath: $.AnimalDetails.createdBy
+            - jsonPath: $.AnimalDetails.updatedBy
+
+
+
+
+    - version: 1.0
+      description: Removes deonar arrival details from the table
+      fromTopic: remove-arrival-updated-details
+      isTransaction: true
+      queryMaps:
+        - query: >
+            DELETE FROM eg_deonar_animal_at_arrival
+            WHERE arrivalId = (SELECT id FROM eg_deonar_arrival WHERE arrivalId = ?)
+              AND animalTypeId = ?
+              AND token = ?;
+          basePath: $.removedC.*
+          jsonMaps:
+            - jsonPath: $.ArrivalUUID
+            - jsonPath: $.AnimalDetails.animalTypeId
+            - jsonPath: $.removedC.*.removeToken
