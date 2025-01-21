@@ -662,7 +662,21 @@ serviceMaps:
               createdby, modifiedby, createdtime, modifiedtime,
               placeofslaughter, dateofslaughter
             ) 
-            VALUES (?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?, ?, ?);
+            VALUES (?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (ddreference) 
+            DO UPDATE SET 
+                arrivalid = EXCLUDED.arrivalid,
+                citizenname = EXCLUDED.citizenname,
+                date = EXCLUDED.date,
+                time = EXCLUDED.time,
+                animaldetails = EXCLUDED.animaldetails,
+                gatepassreference = EXCLUDED.gatepassreference,
+                createdby = EXCLUDED.createdby,
+                modifiedby = EXCLUDED.modifiedby,
+                createdtime = EXCLUDED.createdtime,
+                modifiedtime = EXCLUDED.modifiedtime,
+                placeofslaughter = EXCLUDED.placeofslaughter,
+                dateofslaughter = EXCLUDED.dateofslaughter;
           basePath: $
           jsonMaps:
             - jsonPath: $.CitizenGatePassSaveDetails.DDReference
