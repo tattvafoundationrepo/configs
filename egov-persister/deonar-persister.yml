@@ -513,7 +513,7 @@ serviceMaps:
             INSERT INTO public.eg_deonar_gatepass_details (
               animaldetails , vehicle_number, receiver_name, receiver_contact, 
               total, reference_number, shopkeeper, createdtime, 
-              modofiedtime, createdby, modifiedby
+              modifiedtime, createdby, modifiedby
             ) VALUES (?::jsonb, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           basePath: $
           jsonMaps:
@@ -670,7 +670,6 @@ serviceMaps:
                 date = EXCLUDED.date,
                 time = EXCLUDED.time,
                 animaldetails = EXCLUDED.animaldetails,
-                gatepassreference = EXCLUDED.gatepassreference,
                 createdby = EXCLUDED.createdby,
                 modifiedby = EXCLUDED.modifiedby,
                 createdtime = EXCLUDED.createdtime,
@@ -737,3 +736,42 @@ serviceMaps:
             - jsonPath: $.ArrivalUUID
             - jsonPath: $.AnimalDetails.animalTypeId
             - jsonPath: $.removedC.*.removeToken
+
+
+    - version: 1.0
+      description: Persists deonar arrival assignment updated details in the table
+      fromTopic: save-arrival-assignment-updated-details
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO eg_deonar_animal_assignment(animaltypeid, tokennum, createdat, updatedat, createdby, updatedby, arrivalid, ddreference)
+            VALUES 
+            (?, ?, ?, ?, ?, ?, ?, ?)
+          basePath: $.addedC.*
+          jsonMaps:
+            - jsonPath: $.AnimalDetails.animalTypeId
+            - jsonPath: $.addedC.*.addToken
+            - jsonPath: $.AnimalDetails.createdAt
+            - jsonPath: $.AnimalDetails.updatedAt
+            - jsonPath: $.AnimalDetails.createdBy
+            - jsonPath: $.AnimalDetails.updatedBy
+            - jsonPath: $.ArrivalUUID
+            - jsonPath: $.ddreference
+
+    - version: 1.0
+      description: Removes deonar arrival assignment details from the table
+      fromTopic: remove-arrival-assignment-updated-details
+      isTransaction: true
+      queryMaps:
+        - query: >
+            DELETE FROM eg_deonar_animal_assignment
+            WHERE arrivalid = ?
+              AND tokennum = ?
+              AND animaltypeid = ?
+              AND ddreference = ?;
+          basePath: $.removedC.*
+          jsonMaps:
+            - jsonPath: $.ArrivalUUID
+            - jsonPath: $.removedC.*.removeToken
+            - jsonPath: $.AnimalDetails.animalTypeId
+            - jsonPath: $.ddreference
