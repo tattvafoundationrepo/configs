@@ -2584,4 +2584,4 @@ ReportDefinitions:
             'PENDINGFORREASSIGNMENT',
             'REJECTED'
           )
-    ORDER BY servicerequestid, epa.createdtime DESC
+orderby: ORDER BY servicerequestid, epa.createdtime desc
