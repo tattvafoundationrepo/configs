@@ -2276,115 +2276,6 @@ ReportDefinitions:
   orderby: ORDER BY assignee NULLS LAST,deptmap_def.name,rating
   groupby: GROUP BY assignee,deptmap_def.name,rating
   
-- reportName: GROPerformanceReport
-  decryptionPathId: GROPerformanceReport
-  summary: Fetches GRO performance report
-  version: 1.0.0
-  moduleName: pgr
-  externalService:
-  - entity: $.MdmsRes.RAINMAKER-PGR.ServiceDefs
-    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=RAINMAKER-PGR&masterName=ServiceDefs&tenantId=$tenantId
-    keyOrder: serviceCode,department,slaHours
-    tableName: tbl_dept
-  - entity: $.MdmsRes.common-masters.Department
-    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Department&tenantId=$tenantId
-    keyOrder: name,code
-    tableName: tbl_def_dept
-  - entity: $.MdmsRes.common-masters.Designation
-    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Designation&tenantId=$tenantId
-    keyOrder: name,code
-    tableName: tbl_def_desig
-  - entity: $.MdmsRes.ACCESSCONTROL-ROLES.roles
-    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=ACCESSCONTROL-ROLES&masterName=roles&tenantId=$tenantId
-    keyOrder: name,code
-    tableName: tbl_def_roles 
-  sourceColumns:
-  - name: employee
-    label: reports.pgr.employee
-    type: string
-    source: pgr_data
-    total: false
-  - name: department
-    label: reports.pgr.department
-    type: string
-    source: pgr_data
-    total: false
-  - name: designation
-    label: reports.pgr.designation
-    type: string
-    source: pgr_data
-    total: false
-  - name: assigned
-    label: reports.pgr.assigned
-    type: string
-    source: pgr_data
-    total: true
-  - name: reopen
-    label: reports.pgr.reopen
-    type: string
-    source: eg_pgr_service
-    total: true
-  searchParams:
-  - name: ulb
-    label: ULB
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND pgr_data.tenantid = $ulb
-  - name: fromDate
-    label: reports.pgr.datefrom
-    type: epoch
-    source: eg_pgr_service
-    isMandatory: false
-    searchClause: AND pgr_data.createdtime >= $fromDate
-  - name: toDate
-    label: reports.pgr.dateto
-    type: epoch
-    source: eg_pgr_service
-    isMandatory: false
-    searchClause: AND pgr_data.createdtime <= $toDate
-  - name: deptname
-    label: reports.pgr.dept.name
-    type: singlevaluelist
-    source: eg_pgr_service
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=common-masters&masterName=Department|$.MdmsRes.common-masters.Department[*].code|$.MdmsRes.common-masters.Department[*].name   
-    isMandatory: false
-    searchClause: AND deptmap_def.code = $deptname
-  query: |
-    with pgr_data as (select  
-      (select pa.createdby from eg_wf_processinstance_v2 pa where
-      pa.businessId = ps.servicerequestid
-      and pa."action" in ('ASSIGN', 'REASSIGN')
-      and pa.createdby IN (SELECT eu.uuid from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE er.name IS NOT NULL AND er.name LIKE '%Grievance Routing Officer')
-      order by pa.createdtime desc
-      fetch first 1 rows only
-      ) as assignee,
-      ps.servicerequestid,
-      ps.createdtime,
-      ps.servicecode,
-      ps.applicationstatus,
-      ps.tenantid,
-      epa.action
-      from eg_pgr_service_v2 as ps
-      left outer join eg_wf_processinstance_v2 as epa on epa.businessId = ps.servicerequestid
-      where
-      1=1)
-      select
-        (select name from eg_user where uuid = assignee) as employee,
-        deptmap_def.name as department,
-       (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in
-        (select designation from eg_hrms_assignment where employeeid = assignee)) as designation,
-        SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
-        SUM (CASE WHEN action in ('REOPEN') THEN 1 ELSE 0 END) as reopen
-        from pgr_data
-        INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
-        INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
-        WHERE 1=1 AND pgr_data.assignee IS NOT NULL
-  orderby: ORDER BY assignee NULLS LAST,deptmap_def.name
-  groupby: GROUP BY assignee,deptmap_def.name
-
 - reportName: DescriptionReport
   decryptionPathId: DescriptionReport
   summary: Fetches department wise reports based description of the complaint
@@ -2489,87 +2380,69 @@ ReportDefinitions:
     searchClause: AND deptmap_def.code = $deptname
   query: |
     SELECT 
-    DISTINCT ON (eg_pgr_service_v2.servicerequestid)
-    ua.name AS lastassignedto,
-    eg_pgr_service_v2.servicerequestid AS complaintId,
-    regexp_replace(eg_pgr_service_v2.servicecode, '([a-z])([A-Z])', '\1 \2','g') AS complainttype,
-    to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
-    to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
-    Initcap(eg_pgr_service_v2.applicationstatus) AS status,
-    (SELECT boundary_def.name 
-     FROM (VALUES tbl_boundary) AS boundary_def(name,code) 
-     WHERE boundary_def.code = eg_pgr_address_v2.locality) AS ward,
-    eg_user.name,
-    eg_user.id,
-    eg_user.tenantid,
-    eg_pgr_address_v2.landmark,
-    (
-      WITH address_data AS (
-        SELECT string_agg(value, ', ') 
-        FROM (
-          SELECT (json_each_text(row_to_json(x1))).value 
+      DISTINCT ON (eg_pgr_service_v2.servicerequestid)
+      ua.name AS lastassignedto,
+      eg_pgr_service_v2.servicerequestid AS complaintId,
+      regexp_replace(eg_pgr_service_v2.servicecode, '([a-z])([A-Z])', '\1 \2','g') AS complainttype,
+      to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
+      to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
+      Initcap(eg_pgr_service_v2.applicationstatus) AS status,
+      (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code = eg_pgr_address_v2.locality) AS ward,
+      eg_user.name,
+      eg_user.id,
+      eg_user.tenantid,
+      eg_pgr_address_v2.landmark,
+      (
+        WITH address_data AS (
+          SELECT string_agg(value, ', ') 
           FROM (
-            SELECT 
-              epa.landmark, 
-              (SELECT boundary_def.name 
-               FROM (VALUES tbl_boundary) AS boundary_def(name,code) 
-               WHERE boundary_def.code = epa.locality),
-              epa.city, 
-              epa.pincode 
-            FROM eg_pgr_address_v2 epa 
-            WHERE epa.parentid = eg_pgr_service_v2.id
-          ) x1
-        ) AS x2
-      )
-      SELECT address_data.string_agg AS address FROM address_data
-    ),
-    description,
-    deptmap_def.name AS department,
-    (
-      SELECT CASE 
-        WHEN (
-          ((SELECT deptmap.slaHours 
-            FROM (VALUES tbl_dept) AS deptmap(servicecode, department, slaHours) 
-            WHERE deptmap.servicecode = eg_pgr_service_v2.servicecode)::integer / 24) 
-          - ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000)
-        ) < 1 
+            SELECT (json_each_text(row_to_json(x1))).value 
+            FROM (
+              SELECT 
+                epa.landmark, 
+                (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code = epa.locality),
+                epa.city, 
+                epa.pincode 
+              FROM eg_pgr_address_v2 epa 
+              WHERE epa.parentid = eg_pgr_service_v2.id
+            ) x1
+          ) AS x2
+        )
+        SELECT address_data.string_agg AS address FROM address_data
+      ),
+      eg_pgr_service_v2.description,
+      deptmap_def.name AS department,
+      CASE 
+        WHEN ((departmap.slaHours::integer / 24) 
+              - ((((extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000)) < 1 
         THEN CONCAT(
           'Overdue by ', 
-          ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000) 
-          - ((SELECT deptmap.slaHours 
-              FROM (VALUES tbl_dept) AS deptmap(servicecode, department, slaHours) 
-              WHERE deptmap.servicecode = eg_pgr_service_v2.servicecode)::integer / 24), 
+          ((((extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000) 
+          - (departmap.slaHours::integer / 24), 
           ' days'
-        ) 
+        )
         ELSE CONCAT(
-          ((SELECT deptmap.slaHours 
-            FROM (VALUES tbl_dept) AS deptmap(servicecode, department, slaHours) 
-            WHERE deptmap.servicecode = eg_pgr_service_v2.servicecode)::integer / 24) 
-          - ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000), 
+          (departmap.slaHours::integer / 24) 
+          - ((((extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000), 
           ' days remaining'
-        ) 
+        )
       END AS slaHours
-    )
     FROM eg_pgr_service_v2
-    LEFT OUTER JOIN eg_pgr_address_v2 
-    ON eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
-    LEFT OUTER JOIN eg_user 
-    ON eg_user.uuid = eg_pgr_service_v2.accountid
+    LEFT OUTER JOIN eg_pgr_address_v2 ON eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
+    LEFT OUTER JOIN eg_user ON eg_user.uuid = eg_pgr_service_v2.accountid
     LEFT OUTER JOIN eg_wf_processinstance_v2 AS epa 
-    ON epa.businessId = eg_pgr_service_v2.servicerequestid 
-    AND epa.action IN ('ASSIGN','REASSIGN')
-    LEFT OUTER JOIN eg_wf_assignee_v2 AS asg 
-    ON asg.processinstanceid = epa.id
-    LEFT OUTER JOIN eg_user AS ua 
-    ON ua.uuid = asg.assignee
-    INNER JOIN (VALUES tbl_dept) AS departmap(servicecode, department, slaHours) 
-    ON departmap.servicecode = eg_pgr_service_v2.servicecode
-    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name, code) 
-    ON departmap.department = deptmap_def.code
+      ON epa.businessId = eg_pgr_service_v2.servicerequestid 
+     AND epa.action IN ('ASSIGN','REASSIGN')
+    LEFT OUTER JOIN eg_wf_assignee_v2 AS asg ON asg.processinstanceid = epa.id
+    LEFT OUTER JOIN eg_user AS ua ON ua.uuid = asg.assignee
+    INNER JOIN (VALUES tbl_dept) AS departmap(serviceCode, department, slaHours) 
+      ON departmap.serviceCode = eg_pgr_service_v2.servicecode
+    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) 
+      ON departmap.department = deptmap_def.code
     WHERE eg_pgr_service_v2.applicationstatus IN (
-    'PENDINGFORASSIGNMENT',
-    'PENDINGATLME',
-    'PENDINGFORREASSIGNMENT',
-    'REJECTED'
-    )
-  orderby: ORDER BY servicerequestid, epa.createdtime DESC
+        'PENDINGFORASSIGNMENT',
+        'PENDINGATLME',
+        'PENDINGFORREASSIGNMENT',
+        'REJECTED'
+      )
+  orderby: ORDER BY eg_pgr_service_v2.servicerequestid, epa.createdtime DESC
