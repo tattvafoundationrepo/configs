@@ -2524,38 +2524,42 @@ ReportDefinitions:
       (
         SELECT CASE 
           WHEN (
-            ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) 
+            ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(servicecode, department, slaHours) WHERE deptmap.servicecode = eg_pgr_service_v2.servicecode)::integer / 24) 
             - ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000)
           ) < 1 
           THEN CONCAT(
             'Overdue by ', 
             ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000) 
-            - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), 
+            - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(servicecode, department, slaHours) WHERE deptmap.servicecode = eg_pgr_service_v2.servicecode)::integer / 24), 
             ' days'
           ) 
           ELSE CONCAT(
-            ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) 
+            ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(servicecode, department, slaHours) WHERE deptmap.servicecode = eg_pgr_service_v2.servicecode)::integer / 24) 
             - ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000), 
             ' days remaining'
           ) 
         END AS slaHours
       )
     FROM eg_pgr_service_v2
-    LEFT OUTER JOIN eg_pgr_address_v2 ON eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
-    LEFT OUTER JOIN eg_user ON eg_user.uuid = eg_pgr_service_v2.accountid
+    LEFT OUTER JOIN eg_pgr_address_v2 
+      ON eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
+    LEFT OUTER JOIN eg_user 
+      ON eg_user.uuid = eg_pgr_service_v2.accountid
     LEFT OUTER JOIN eg_wf_processinstance_v2 AS epa 
       ON epa.businessId = eg_pgr_service_v2.servicerequestid 
      AND epa.action IN ('ASSIGN','REASSIGN')
-    LEFT OUTER JOIN eg_wf_assignee_v2 AS asg ON asg.processinstanceid = epa.id
-    LEFT OUTER JOIN eg_user AS ua ON ua.uuid = asg.assignee
-    INNER JOIN (VALUES tbl_dept) AS departmap(serviceCode, department, slaHours) USING (servicecode)
-    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) 
+    LEFT OUTER JOIN eg_wf_assignee_v2 AS asg 
+      ON asg.processinstanceid = epa.id
+    LEFT OUTER JOIN eg_user AS ua 
+      ON ua.uuid = asg.assignee
+    INNER JOIN (VALUES tbl_dept) AS departmap(servicecode, department, slaHours) 
+      ON departmap.servicecode = eg_pgr_service_v2.servicecode
+    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name, code) 
       ON departmap.department = deptmap_def.code
-    WHERE eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
-      AND eg_pgr_service_v2.applicationstatus IN (
-        'PENDINGFORASSIGNMENT',
-        'PENDINGATLME',
-        'PENDINGFORREASSIGNMENT',
-        'REJECTED'
-      )
+    WHERE eg_pgr_service_v2.applicationstatus IN (
+      'PENDINGFORASSIGNMENT',
+      'PENDINGATLME',
+      'PENDINGFORREASSIGNMENT',
+      'REJECTED'
+    )
   orderby: ORDER BY servicerequestid, epa.createdtime DESC
