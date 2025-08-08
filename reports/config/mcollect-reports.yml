@@ -1,6 +1,5 @@
 ReportDefinitions:
   - reportName: MCollectReceiptRegister
-    decryptionPathId: MCollectReceiptRegister
     summary: Report is used for audit and year-end finance reconciliation activities by the ULBs. It also serves as the data dump needed by the ULBs. 
     version: 1.0.0
     moduleName: mcollect
@@ -100,7 +99,6 @@ ReportDefinitions:
     orderby: order by paydl.receiptdate desc
   
   - reportName: MCollectCollectionReport
-    decryptionPathId: MCollectCollectionReport
     summary: It helps administrators track the collection in the ULB and the employee collection performance. 
     version: 1.0.0
     moduleName: mcollect
