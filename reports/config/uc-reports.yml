@@ -752,18 +752,12 @@ ReportDefinitions:
 
   - reportName: MiscReceiptCB
     summary: Receipt Register Miscellaneous
-    decryptionPathId: MiscReceiptCB
     version: 1.0.0
     moduleName: rainmaker-uc
     # additionalConfig:
     #   print:
     #     pdfPageSize: "A3"
     sourceColumns:
-      - name: consumername
-        label: reports.uc.consumername
-        type: string
-        source: uc
-        total: false
       - name: mobilenumber
         label: reports.uc.mobilenumber
         type: string
