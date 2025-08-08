@@ -2387,7 +2387,7 @@ ReportDefinitions:
       to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
       to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
       Initcap(eg_pgr_service_v2.applicationstatus) AS status,
-      (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code = eg_pgr_address_v2.locality) AS ward,
+      boundary_def.name AS ward,
       eg_user.name,
       eg_user.id,
       eg_user.tenantid,
@@ -2400,10 +2400,12 @@ ReportDefinitions:
             FROM (
               SELECT 
                 epa.landmark, 
-                (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code = epa.locality),
+                boundary_def.name AS locality_name,
                 epa.city, 
                 epa.pincode 
               FROM eg_pgr_address_v2 epa 
+              LEFT JOIN (VALUES tbl_boundary) AS boundary_def(name,code) 
+                ON boundary_def.code = epa.locality
               WHERE epa.parentid = eg_pgr_service_v2.id
             ) x1
           ) AS x2
@@ -2428,13 +2430,19 @@ ReportDefinitions:
         )
       END AS slaHours
     FROM eg_pgr_service_v2
-    LEFT OUTER JOIN eg_pgr_address_v2 ON eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
-    LEFT OUTER JOIN eg_user ON eg_user.uuid = eg_pgr_service_v2.accountid
+    LEFT OUTER JOIN eg_pgr_address_v2 
+      ON eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
+    LEFT OUTER JOIN (VALUES tbl_boundary) AS boundary_def(name,code)
+      ON boundary_def.code = eg_pgr_address_v2.locality
+    LEFT OUTER JOIN eg_user 
+      ON eg_user.uuid = eg_pgr_service_v2.accountid
     LEFT OUTER JOIN eg_wf_processinstance_v2 AS epa 
       ON epa.businessId = eg_pgr_service_v2.servicerequestid 
      AND epa.action IN ('ASSIGN','REASSIGN')
-    LEFT OUTER JOIN eg_wf_assignee_v2 AS asg ON asg.processinstanceid = epa.id
-    LEFT OUTER JOIN eg_user AS ua ON ua.uuid = asg.assignee
+    LEFT OUTER JOIN eg_wf_assignee_v2 AS asg 
+      ON asg.processinstanceid = epa.id
+    LEFT OUTER JOIN eg_user AS ua 
+      ON ua.uuid = asg.assignee
     INNER JOIN (VALUES tbl_dept) AS departmap(serviceCode, department, slaHours) 
       ON departmap.serviceCode = eg_pgr_service_v2.servicecode
     INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) 
