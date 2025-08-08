@@ -2492,13 +2492,11 @@ ReportDefinitions:
       DISTINCT ON (servicerequestid)
       ua.name AS lastassignedto,
       servicerequestid AS complaintId,
-      regexp_replace(servicecode, '([a-z])([A-Z])', '\1 \2', 'g') AS complainttype,
+      regexp_replace(servicecode, '([a-z])([A-Z])', '\1 \2','g') AS complainttype,
       to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
       to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
       Initcap(eg_pgr_service_v2.applicationstatus) AS status,
-      (SELECT boundary_def.name 
-         FROM (VALUES tbl_boundary) AS boundary_def(name, code) 
-        WHERE boundary_def.code = eg_pgr_address_v2.locality) AS ward,
+      (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code = eg_pgr_address_v2.locality) AS ward,
       eg_user.name,
       eg_user.id,
       eg_user.tenantid,
@@ -2506,82 +2504,58 @@ ReportDefinitions:
       (
         WITH address_data AS (
           SELECT string_agg(value, ', ') 
+          FROM (
+            SELECT (json_each_text(row_to_json(x1))).value 
             FROM (
-              SELECT (json_each_text(row_to_json(x1))).value 
-                FROM (
-                  SELECT epa.landmark, 
-                         (SELECT boundary_def.name 
-                            FROM (VALUES tbl_boundary) AS boundary_def(name, code) 
-                           WHERE boundary_def.code = epa.locality), 
-                         epa.city, 
-                         epa.pincode 
-                    FROM eg_pgr_address_v2 epa 
-                   WHERE epa.parentid = eg_pgr_service_v2.id
-                ) x1
-            ) AS x2
+              SELECT 
+                epa.landmark, 
+                (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code = epa.locality),
+                epa.city, 
+                epa.pincode 
+              FROM eg_pgr_address_v2 epa 
+              WHERE epa.parentid = eg_pgr_service_v2.id
+            ) x1
+          ) AS x2
         )
-        SELECT address_data.string_agg AS address 
-          FROM address_data
+        SELECT address_data.string_agg AS address FROM address_data
       ),
       description,
       deptmap_def.name AS department,
       (
         SELECT CASE 
-                 WHEN (
-                   (
-                     (SELECT deptmap.slaHours 
-                        FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) 
-                       WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24
-                   ) 
-                   - (
-                     (((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000
-                   )
-                 ) < 1 
-                 THEN CONCAT(
-                   'Overdue by ', 
-                   (
-                     (((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000
-                   ) 
-                   - (
-                     (SELECT deptmap.slaHours 
-                        FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) 
-                       WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24
-                   ), 
-                   ' days'
-                 )
-                 ELSE CONCAT(
-                   (
-                     (SELECT deptmap.slaHours 
-                        FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) 
-                       WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24
-                   ) 
-                   - (
-                     (((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000
-                   ), 
-                   ' days remaining'
-                 )
-               END AS slaHours
+          WHEN (
+            ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) 
+            - ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000)
+          ) < 1 
+          THEN CONCAT(
+            'Overdue by ', 
+            ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000) 
+            - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), 
+            ' days'
+          ) 
+          ELSE CONCAT(
+            ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) 
+            - ((((SELECT extract(epoch FROM now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint / 86400000), 
+            ' days remaining'
+          ) 
+        END AS slaHours
       )
     FROM eg_pgr_service_v2
-      LEFT OUTER JOIN eg_pgr_address_v2 
-        ON eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
-      LEFT OUTER JOIN eg_user 
-        ON eg_user.uuid = eg_pgr_service_v2.accountid
-      LEFT OUTER JOIN eg_wf_processinstance_v2 AS epa 
-        ON epa.businessId = eg_pgr_service_v2.servicerequestid 
-       AND epa.action IN ('ASSIGN', 'REASSIGN')
-      LEFT OUTER JOIN eg_wf_assignee_v2 AS asg 
-        ON asg.processinstanceid = epa.id
-      LEFT OUTER JOIN eg_user AS ua 
-        ON ua.uuid = asg.assignee
-      INNER JOIN (VALUES tbl_dept) AS departmap(serviceCode, department) 
-        USING (servicecode)
-      INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name, code) 
-        ON departmap.department = deptmap_def.code
-    WHERE eg_pgr_service_v2.applicationstatus IN (
-            'PENDINGFORASSIGNMENT',
-            'PENDINGATLME',
-            'PENDINGFORREASSIGNMENT',
-            'REJECTED'
-          )
-orderby: ORDER BY servicerequestid, epa.createdtime desc
+    LEFT OUTER JOIN eg_pgr_address_v2 ON eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
+    LEFT OUTER JOIN eg_user ON eg_user.uuid = eg_pgr_service_v2.accountid
+    LEFT OUTER JOIN eg_wf_processinstance_v2 AS epa 
+      ON epa.businessId = eg_pgr_service_v2.servicerequestid 
+     AND epa.action IN ('ASSIGN','REASSIGN')
+    LEFT OUTER JOIN eg_wf_assignee_v2 AS asg ON asg.processinstanceid = epa.id
+    LEFT OUTER JOIN eg_user AS ua ON ua.uuid = asg.assignee
+    INNER JOIN (VALUES tbl_dept) AS departmap(serviceCode, department, slaHours) USING (servicecode)
+    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) 
+      ON departmap.department = deptmap_def.code
+    WHERE eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
+      AND eg_pgr_service_v2.applicationstatus IN (
+        'PENDINGFORASSIGNMENT',
+        'PENDINGATLME',
+        'PENDINGFORREASSIGNMENT',
+        'REJECTED'
+      )
+  orderby: ORDER BY servicerequestid, epa.createdtime DESC
